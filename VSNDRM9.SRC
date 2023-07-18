@@ -1,0 +1,1171 @@
+;
+;	 SSSS  IIIII  N   N  IIIII   SSSS  TTTTT   AAA   RRRR
+;	S        I    NN  N    I    S        T    A   A  R   R
+;	 SSS     I    N N N    I     SSS     T    AAAAA  RRRR
+;		S    I    N  NN    I        S    T    A   A  R  R
+;	SSSS   IIIII  N   N  IIIII  SSSS     T    A   A  R   R
+;
+;   SINISTAR SOUND ROM (Recreation started by SynaMax - 07/14/2023)
+;   
+;	6800 Assembly code to build both Video Sound Rom 9 and 10
+;
+;	Sinistar's upright cabinet uses VSNDRM9 for mono audio, but
+;	the rare cockpit version uses both VSNDRM9 and VSNDRM10 for stereo.
+;
+;	Uncomment "STEREO	EQU	1" to build VSNDRM10.
+;
+;;---------------------------------------------------------------------
+;
+;	***Important***
+;
+;	Because one of the routines (the Walsh Function Sound Machine) uses
+;	the same RAM area with other code sections, vasm stops with an
+;	error.  To get around this, the Walsh Function has been moved to
+;	its own source file, SINWALSH.SRC
+;
+;	When VSNDRM9 is built, there will be padding starting at $F1DD and
+;	ending at $F686.  This is where the SINWALSH binary data will go.
+;
+;	After both VSNDRM9.SRC and SINWALSH.SRC have been built by vasm,
+;	paste the SINWALSH binary data into VSNDRM9.bin at $F1DD.
+;
+;	Even though the Walsh Function is not used in VSNDRM10, the code
+;	still exists.  When building SINWALSH for VSNDRM10, you must also
+;	define "STEREO	EQU	1" in both source files, so that the binary
+;	data stays aligned.
+;
+;	SINWALSH data for VSNDRM10 starts two bytes earlier at $F1DB.
+;
+;;---------------------------------------------------------------------
+;
+;   Thanks to historicalsource for preserving the source code
+;   to the first four Video Sound ROMs found in the following
+;   classic Williams arcade games: Defender, Stargate, Robotron,
+;   and Joust.  Joust and Sinistar are the only games that are known
+;   to use the Walsh Function routine, which is one of the most
+;   complex synths found in any of the ROMs.  Without this,
+;   my reassembly of Sinistar's sound code would've been impossible.
+;
+;   Huge thanks also goes out to Will-I-ROMS aka kaputnikGo,
+; 	you can view their extensive Williams disassembly files here:
+;   https://github.com/kaputnikGo/WiLL-i-ROMS/blob/master/Video%20Sound%20ROMS/Video%20Sound%20ROM%209.asm
+;
+;   Their disassembly of Sinistar's sound ROM was extremely helpful
+;   in deciphering much of the code, including unused routines.
+;   Their work also led me to discovering the unused Extra Ship
+;   sounds found in WALSHT and Mike Metz's corrupted ODDTBL.
+;
+;   Thanks to mwenge for the inspiration to attempt reassembling
+;   Sinistar's sound ROM by showing that it's possible to rebuild
+;   Defender's sound code with vasm.  His code fixes to VSNDRM1.SRC
+;	helped me at times where I was completely stuck and had no idea
+;	where to go.
+;
+;	A big shout out goes to Daniel Lopez for creating the
+;	Defender Sound Studio javascript app.  I highly recommend checking 
+;	it out.  His app was very helpful to me when I was struggling to
+;	understand how the various synths work.  You can also create or 
+;	import your own GWAVE sounds including Sinistar's sfx; fun stuff!
+;	http://zapspace.net/defender_sound/
+;
+;	And last but not least, thanks to my spouse for their
+;	patience and support during this project.
+;
+;;---------------------------------------------------------------------
+;
+;	To build VSNDRM9, download vasm and run these command lines:
+;
+;	vasm6800_oldstyle -ast -Fbin -o vsndrm9.bin vsndrm9.src
+;
+;	vasm6800_oldstyle -ast -Fbin -o sinwalsh.bin sinwalsh.src
+;
+;	Then, paste the sinwalsh.bin data into vsndrm9.bin at $F1DD.
+;
+;;---------------------------------------------------------------------
+;
+;	In order to get this ROM to build correctly, several modifications 
+;	had to be made.  When possible, I will point out code differences
+;	between Sinistar's sound code and other Williams Sound ROMs.
+;
+;	Original programmer comments are usually UPPER-CASE and have one
+;	semicolon (;).  My comments will be in lower-case, with parenthesis
+;	and start with two semicolons.
+;									  					;;(like this)
+;
+;;---------------------------------------------------------------------
+;
+;
+;
+;
+	NAM	JOUST SOUND ROM STARTED 06/15/1982
+	SUBTTL	 
+*COPYRIGHT WILLIAMS ELECTRONICS INC. 1982
+*PROGRAMMERS: EUGENE P. JARVIS, SAM DICKER,RANDY PFEIFFER,JOHN KOTLARIK
+*		PAUL G. DUSSAULT,CARY W. KOLKER,TIM  MURPHY
+*			AND A CAST OF THOUSANDS......
+;;SINISTAR SOUND DESIGNER/VIDEO SOUND ROM 9 & 10 PROGRAMMER: MIKE METZ
+;;ADDITIONAL SINIBOMB SOUND DESIGN: ED SUCHOCKI
+*
+*
+*
+*SYSTEM CONSTANTS
+*
+;STEREO	EQU		1				;;(use this to build VSNDRM10)
+WALSH 	EQU 	$F660			;;(used for jumping to SINWALSH)
+*
+ROM		EQU		$F000
+SOUND	SET		$400
+CKORG	EQU		$EF00			;CHECKSUM PROG ORG
+ENDRAM	SET		$7F
+VECTOR	EQU		$FFF8			;RESET,INT VECTORS
+WVELEN	EQU		72
+*
+BG1FLG	EQU		$04
+NIN		EQU		5
+FIF		EQU		6
+TACC    EQU    	4               ;TACCATA TEMPO CONSTANT
+PHANC   EQU    	3               ;PHANTOM TEMPO CONTANT
+TAF     EQU    	34715>>1        ;NOTE TIMES				;;43CD
+TA      EQU    	36780>>1
+TBF     EQU    	38967>>1
+TB      EQU    	41284>>1
+TC      EQU    	43739>>1
+TCS     EQU    	46340>>1
+TD      EQU    	49096>>1
+TEF     EQU    	52015>>1
+TE      EQU    	55108>>1
+TF      EQU    	58385>>1
+TFS     EQU    	61857>>1
+TG      EQU    	65535>>1
+;;	Added Constants
+RAM		SET		$0000
+WRAM	SET		$0000
+*
+*
+* TALKING EQUATES
+*
+TALK    EQU    	$EFFD           ;ENTRY TO TALKING
+TALKD   EQU   	$EFFA           ;ENTRY FOR DIAGNOSTICS
+*
+*
+*GLOBALS
+*
+;;
+;; (A dummy global was added for padding.)
+;;
+		ORG		RAM
+;;
+DUMMY 	RMB 	1				;;(to help align ram)	
+;;
+HI		RMB		1				;RANDOM SEED 
+LO		RMB		1				;RANDOM SEED
+XDECAY	RMB		2										;;($03)
+AMP0	RMB		1										;;($05)		
+*
+*
+*TEMPORARIES
+*
+;;
+;; (TMPRAM originally had *, but vasm doesn't like this
+;; so $0006 was used instead.)
+;;
+TMPRAM	EQU		$0006			;TEMPORARY RAM
+TEMPX	RMB		2				;X TEMPS
+XPLAY	RMB		2										;;($08)
+XPTR	RMB		2										;;($0A)
+TEMPA	RMB		1				;ACCA TEMP
+TEMPB	RMB		1										;;($0D)
+;;
+;; (LOCRAM originally had *, but vasm doesn't like this
+;; so $000E was used instead.)
+;;
+LOCRAM	EQU	$000E					
+*
+*GWAVE PARAMETERS
+*
+		ORG		LOCRAM
+GECHO	RMB		1				;ECHO FLAG				;;($0E)
+GCCNT	RMB		1				;CYCLE COUNT			;;($0F)
+GECDEC	RMB		1				;# OF DECAYS PER ECHO	;;$10
+GDFINC	RMB		1				;DELTA FREQ INC			;;$11
+GDCNT	RMB		1				;DELTA FREQ COUNT 		;;$12
+GWFRM	RMB		2				;WAVEFORM ADDRESS		;;$13
+*TEMPORARY OR COMPUTED PARAMETERS
+PRDECA	RMB		1				;PRE-DECAY FACTOR		;;$15
+GWFRQ	RMB		2				;FREQ TABLE ADDR		;;$16
+FRQEND	RMB		2				;END ADDR FREQ TABLE	;;$18
+WVEND	RMB		2				;WAVE END ADDR			;;$1A
+GPER	RMB		1				;PERIOD					;;$1C
+GECNT	RMB		1				;# OF ECHOES COUNTER	;;$1D
+FOFSET	RMB		1				;FREQUENCY OFFSET		;;$1E
+*
+DUMMY2	RMB		1				;;???
+*
+*GWAVE TABLES
+*
+GWTAB	RMB	WVELEN				;WAVE TABLE	;;$20
+*
+*
+*ORGAN PARAMETERS
+*
+;;
+;;	(vasm was getting overlapping section errors with LOCRAM
+;;	so RORG LOCRAM and REND was used to fix this.) 
+;;
+        RORG   	LOCRAM
+ORGFLG	RMB	   	1										;;$0E
+DUR     RMB    	2               ;NOTE DURATION			;;$0F
+OSCIL   RMB    	1               ;OSCILLATORS			;;$11
+RDELAY  RMB    	60              ;RAM DELAY LOAD			;;$12
+        REND
+*
+*
+*
+*NOISE/CROWD ROAR ROUTINE PARAMETERS
+*
+		RORG	LOCRAM
+DECAY	RMB		1										;;($0E)
+NAMP	RMB		1										;;($0F)
+CYCNT	RMB		1										;;($10)
+NFRQ1	RMB		2										;;($11)
+NFFLG	RMB		1										;;($13)
+LFREQ	RMB		1										;;($14)
+DFREQ	RMB		1										;;($15)
+GALPAM	EQU		*
+CYCNT2	RMB		1
+NAMP2	RMB		1
+DECAY2	RMB		1
+NFFLG2	RMB		1
+NFR2	RMB		1
+GALCNT	RMB		1
+WHIS	RMB		1				;CROWD ROAR AMP
+WFRQ	RMB		1				;CROWD WHISTLE FREQ
+WCNT	RMB		1				;WHISTLE PASSCOUNTER
+PTRHI	RMB		2				;WHIS ADR PTR
+WFRQ2	RMB		1
+WCNT2	RMB		1
+CURVAL	RMB		1				;WHISTLING NOISE OUTPUT
+ATP		RMB		1				;INTERM NOISE VAL
+MINWIS	RMB		1				;MIN WHISTLE FREQ
+CY2		RMB		1				;NOISE CYCLE COUNTER
+DFRQ	RMB		1				;WHISTLE FREQ CHANGE
+DFRQ2	RMB		1				;INIT WHISTLE FREQ CHANGE
+NNOIS	RMB		1				;NEXT NOISE VALUE
+NFRQ	RMB		1				;NOISE FREQ
+NFRQ2	RMB		1				;INIT NOISE FREQ
+RCNT2	RMB		1
+		REND
+		
+*
+*
+* MAIN PROGRAM
+*
+		ORG		ROM
+		FCB		$AA				;CHECKSUM BYTE
+*	
+*
+SETUP	SEI						;SET INTERRUPT MASK
+		LDS		#ENDRAM			;INITIALIZE STACK POINTER
+		LDX		#SOUND			;INDEX TO PIA
+		CLR		1,X				;ACCESS DDRA
+		CLR		3,X				;ACCESS DDRB
+		LDAA	#$FF			;PA0-PA7
+		STAA	0,X				;SET SIDE A AS OUTPUTS
+		LDAB	#ENDRAM+1		;;(new instruction) (used for clearing RAM)
+		STAB	2,X				;;(only found in Sinistar/Bubbles) (Joust has CLR	2,X)
+		LDAA	#$37			;CB2 LOW, IRQ ALLOWED
+		STAA	3,X				;PROGRAM B CONTROL REG
+		LDAA	#$3C			;CA2 SET INIT HIGH, NO IRQS
+		STAA	1,X				;PROGRAM A SIDE
+		STAB	2,X				;;(new instruction) (store in port B PIA1)
+		LDX		#ENDRAM
+RAMCLR	CLR 0,X					;;(wipe out the RAM)
+		DEX
+		BNE		RAMCLR			;;(are we done yet?)
+		LDAA	#$3C			;;(grab number for the random generator)	
+		STAA	HI				;START RANDOM GENERATOR
+		CLI						;CLEAR INTERRUPTS
+		BRA	*					;WAIT FOR INTERRUPT
+;;
+ORGASM	CLR 	ORGFLG
+		STAA	TEMPA			;TUNE NUMBER
+		PSHA					;;(this is a new instruction)
+		LDX		#ORGTAB
+ORGNT2	LDAA	0,X				;TUNE TABLE LENGTH
+		BEQ		ORGNT5			;INVALID TUNE
+		DEC 	TEMPA
+		BEQ		ORGNT3
+		INCA
+		JSR		ADDX
+		BRA		ORGNT2
+ORGNT3	INX
+		STX		XPTR			;NOTE POINTER
+		JSR		ADDX
+		STX		XPLAY			;TUNE END
+		LDX		XPTR
+ORGNT4	LDAA	0,X				;TUNE LOOP
+		STAA 	OSCIL			
+		LDAA	1,X
+		LDX		2,X
+		STX		DUR				
+		BSR		ORGANL
+		LDX		XPTR
+		INX
+		INX
+		INX
+		INX 
+		STX		XPTR
+		CPX		XPLAY
+		BNE		ORGNT4
+ORGNT5	PULA					;;(In VSNDRM3, this is just an RTS)
+		BRA		BGTEST
+ORGANL  LDX		#RDELAY
+LDLP	CMPA	#0								;;		SUBA	#2
+		BEQ 	LD1								;;LDLP	BLS	LD1
+		CMPA	#3
+		BEQ		LD2
+		LDAB	#1				;NOP
+		STAB	0,X
+		INX
+		SUBA	#2
+		BRA		LDLP
+LD2		LDAB	#$91			;CMPA 0
+		STAB	0,X
+		CLR	1,X
+		INX
+		INX
+LD1		LDAB	#$7E			;JMP START2
+		STAB	0,X
+		LDAB   	#ORGAN1>>8 		;;(original was: LDAB	#ORGAN1!>8 		;MSB)		
+		STAB	1,X
+		LDAB  	#ORGAN1&$FF		;;(original was: LDAB	#ORGAN1!.$FF 	;LSB)
+		STAB	2,X
+ORGAN	LDX		DUR
+ORGAN1	CLRA 
+		FCB		$F6				;LOAD B EXTND TEMPB
+		FDB		TEMPB	
+		INCB	
+		STAB	TEMPB
+		ANDB	OSCIL			;MASK OSCILLATORS
+		LSRB
+		ADCA	#0
+		LSRB
+		ADCA	#0
+		LSRB
+		ADCA	#0
+		LSRB
+		ADCA	#0
+		LSRB
+		ADCA	#0	
+		LSRB
+		ADCA	#0
+		LSRB
+		ADCA	#0	
+;; (Robotron's VSNDRM3 has an ABA opcode here)	
+		ASLA
+		ASLA
+		ASLA
+		ASLA		
+		ASLA
+		STAA	SOUND	
+		DEX	
+		BEQ		ORGAN2			;NOTE OVER?
+		JMP		RDELAY	
+ORGAN2	RTS  
+*
+* INTERRUPT PROCESSING
+*
+IRQ		LDS		#ENDRAM			;RE-INITIALIZE STACK
+		LDAA	SOUND+2			;GET INPUT TRIGGER
+		CLI						;NOW ALLOW IRQS
+		COMA 					;INVERT INPUT
+		ANDA 	#$1F			;MASK GARB
+		BSR		QMESG			;;(start checking sound ID)
+;;---------------------------------------------------------------------
+;; 	In the original VSNDRM source code files, the interrupts have
+;; 	labels that aren't very descriptive (such as IRQ000).
+;; 	To better understand how the interrupts are processed,
+;; 	I took the liberty of renaming the labels in this section.
+;;
+;; 	Some sound effect names have a "Q" in front.  These are symbols
+;;	taken from the game logic source code.
+;;---------------------------------------------------------------------
+;; 	BGTEST 
+;; 	This is constantly checking if BGSNDFLAG is active
+;; 	If it's on, then go to the background drone routine, otherwise
+;; 	keep testing forever until an interrupt breaks the loop.
+;; 	When the current sound finishes, we go back to checking this flag.
+;;---------------------------------------------------------------------
+BGTEST	TST 	BG1FLG			;;(Check if drone is on)
+		BEQ		BGTEST			;;(No? Check again!)
+		JMP 	DROSYN			;;(Yes? Go make some noise)
+;;---------------------------------------------------------------------
+;;
+;;	SINISTAR SOUND SELECT
+;;
+;;	The sound effects are cued up by comparing A register's value.
+;; 	If it's a bigger number, then we check for the next sound.
+;; 	Otherwise, if the value matches, then we proceed with getting
+;; 	the synth routine started.
+;;
+;;---------------------------------------------------------------------
+;;
+;; 1) WARNING CUE
+;;
+QMESG	CMPA	#$01			;;(what sound ID is this?)
+		BGT 	SINROAR			;;(if it's a bigger number, then check for the next sound)
+		JMP 	ORGASM			;;(otherwise, play the organ warning cue)
+;;---------------------------------------------------------------------
+;;
+;;
+;; 2) SINISTAR ROAR
+;;
+SINROAR	CMPA	#$02			;;(check sound ID)
+		BGT 	QNEWSH			;;(bigger number? keep going down the line, buddy)
+;;
+;; 	Sinistar speech is handled outside of the sound rom.
+;; 	Any jumps to $EFFD are speech calls that are then handled by code
+;; 	located at $EE00 (found in speech IC4).
+;;
+;; 	Amazingly, because VSNDRM1 is based off of Firepower's sound ROM,
+;; 	Defender's sound code has the same speech routines Sinistar uses.
+;;		
+;;  While writing the documentation here, I discovered a really awesome
+;;	"easter egg"  that Mike Metz left in.  If you disconnect the speech
+;; 	board, brand new sounds will play instead of Sinistar's taunts.
+;;
+;;	During any dialouge, if the $7E opcode is not found, a generic
+;;	error sound plays instead (ERROR).
+;;
+;;	However, if no opcode is found during Sinistar's roar, a new
+;;  LOUD Walsh Function sound plays that tries to emulate the
+;;	scary scream (ERROAR).  I wonder if this feature was added so that
+;;	the game can still work without the speech board.
+;;
+*
+* CHECK FOR PRESENCE OF TALKING PROGRAM
+*
+		LDAB    TALK            ;CHECK FOR PROGRAM TO BE THERE
+        CMPB    #$7E            ;IS IT?
+        BNE     ERROAR          ;NO, SKIP THE TALKING
+		LDAA	#$09			;;(load roar speech phrase)
+        JMP     TALK            ;GO PLAY OUT 1 PHRASE 
+;;---------------------------------------------------------------------
+;;
+;; 3) EXTRA SHIP
+;;
+QNEWSH	CMPA	#$03			;;(check sound ID)
+		BGT		BGMUTE			;;(if not, keep going)
+;;
+;;	The Walsh Function sound machine is normally only used for
+;;  the Extra Ship sound.  But if the speech board is disconnected,
+;;	then ERROAR is called whenever the Sinistar roars.  Both QNEWSH
+;;  and ERROAR use the A register as the Walsh Table offset.
+;;
+;;	After subtracting by 2, if A = 0 then play ERROAR.
+;;	If A = 1, play QNEWSH.
+;;
+;;  In the cockpit-exclusive Video Sound ROM 10, the Walsh synth is
+;;	muted by replacing the SUBA and JMP instructions with an RTS.
+;; 
+ERROAR	IFNDEF	STEREO
+		SUBA 	#$02			;;(suba to get WALSHT offset)
+		JMP		WALSH			;;(go to Walsh synth)
+		ELSE
+		RTS
+		ENDIF
+;;---------------------------------------------------------------------
+;;
+;; 4) SHUT UP UNUSED DRONE
+;;
+BGMUTE	CMPA	#$04
+		BGT		DRONE			
+		CLR		BG1FLG
+		RTS
+;;---------------------------------------------------------------------
+;;
+;; 5) UNUSED DRONE
+;;
+DRONE	CMPA	#$05			;;(check sound ID)
+		BGT		HUNCOW			
+		JMP		DRONELD	
+;;---------------------------------------------------------------------
+;;
+;; 6) "I HUNGER COWARD"
+;;		
+HUNCOW	CMPA	#$06
+		BGT		IMPACT			
+		LDAB    TALK
+        CMPB    #$7E 
+		BEQ		HANGRY		
+		JMP		ERROR			
+HANGRY	LDAA	#$08
+        JMP     TALK 
+;;---------------------------------------------------------------------
+;;
+;; 7) IMPACT (QPLDIE)
+;;
+IMPACT	CMPA	#$07		
+		BGT		XPLODE			
+		JMP		$FB1D
+;;---------------------------------------------------------------------
+;;
+;; 8) PLAYER EXPLOSION (QPLDIE)
+;;		
+XPLODE	CMPA	#$08
+		BGT		NOISE			
+		JMP		$FB2A	
+;;---------------------------------------------------------------------
+;;
+;; 9 & 10) TWO UNUSED NOISE EFFECTS
+;;		
+NOISE	CMPA	#$0A
+		BGT		RUNCOW			
+		SUBA	#$09
+		JMP		NOISELD			
+;;---------------------------------------------------------------------
+;;
+;; 11) "RUN COWARD"
+;;	
+RUNCOW	CMPA	#$0B
+		BGT		QBANG			
+ 		LDAB    TALK
+        CMPB    #$7E
+		BNE		ERROR			
+		LDAA	#$06
+ 		JMP   	TALK
+;;---------------------------------------------------------------------
+;;
+;; 12) BANG (Explosion used for Enemies and Planetoids)
+;;
+QBANG	CMPA	#$0C
+		BGT		IAMSINI			
+		JMP		$FB10		
+;;---------------------------------------------------------------------
+;;
+;; 13) "I AM SINISTAR"
+;;		
+IAMSINI	CMPA	#$0D
+		BGT		BEWARE			
+ 		LDAB    TALK
+        CMPB    #$7E
+		BNE		ERROR			
+		LDAA	#$02
+ 		JMP   	TALK
+;;---------------------------------------------------------------------
+;;
+;; 14) "BEWARE I LIVE"
+;;
+BEWARE	CMPA	#$0E
+		BGT HUNGER			
+ 		LDAB    TALK
+        CMPB    #$7E
+		BNE		ERROR		
+		LDAA	#$03
+ 		JMP     TALK
+;;---------------------------------------------------------------------
+;;
+;; 15) "I HUNGER"
+;;
+HUNGER	CMPA	#$0F
+		BGT		COWARE			
+ 		LDAB    TALK
+        CMPB    #$7E
+		BNE		ERROR			
+		LDAA	#$04
+ 		JMP     TALK
+;;---------------------------------------------------------------------
+;;
+;; 19) "BEWARE COWARD"
+;;
+COWARE	CMPA	#$13			
+		BNE 	GWAVSFX	
+ 		LDAB    TALK
+        CMPB    #$7E
+		BNE		ERROR		
+		LDAA	#$05
+ 		JMP     TALK
+;;---------------------------------------------------------------------
+;;;
+;;;Three new instructions were inserted into the rear panel cockpit sound ROM
+		IFDEF	STEREO
+		LDX		#$10FF
+DELAY	DEX
+		BNE		DELAY
+		ENDIF
+;;---------------------------------------------------------------------
+;;
+;;	16-18, 20-28) GWAVE SOUND EFFECTS
+;;
+GWAVSFX	CMPA	#$1C			
+		BGT 	RUNRUN		
+		SUBA	#$0E
+PLAYSFX JSR		$F7DA			
+		JMP		$F840	
+;;---------------------------------------------------------------------
+;;
+;; 29) "RUN RUN RUN"
+;;		
+RUNRUN	CMPA	#$1D
+		BGT 	SHUTUP		
+ 		LDAB    TALK
+        CMPB    #$7E
+		BNE		ERROR				
+		LDAA	#$07
+ 		JMP    	TALK
+;;---------------------------------------------------------------------
+;;
+;; 31) SHUT UP SINISTAR
+;;	
+SHUTUP 	RTS 
+;;---------------------------------------------------------------------
+;;
+;;`
+;;		
+		IFNDEF	STEREO		
+ERROR	LDAA	#$01
+		JMP		PLAYSFX
+		ELSE
+ERROR	RTS
+		ENDIF
+;;---------------------------------------------------------------------
+*
+* ADD A TO INDEX REGISTER
+*
+ADDX	STX		XPLAY
+		ADDA	XPLAY+1
+		STAA	XPLAY+1
+		LDAA	XPLAY
+		ADCA	#0
+		STAA	XPLAY
+ADDX1	LDX		XPLAY
+		RTS
+*
+* DIAGNOSTIC PROCESSING HERE
+*
+NMI		SEI
+		LDS		#ENDRAM			;RESET THE STACK
+		LDX		#$FFFF
+		CLRB
+NMI1	ADCB	0,X
+		DEX
+		CPX		#$F000	
+		BNE		NMI1
+		CMPB	0,X				;;(The checksum should be $BE, but
+								;;because it's defined as $AA, the
+								;;the checksum fails.)
+		BEQ		NMI2
+		WAI						;;(test failed, wait forever)
+NMI2	JSR		DIAGNOI			;;(play Diagnoistic Synth Noise?)
+		BRA 	NMI				;;(loop forever)
+*
+* NOTE DEFINITIONS AND ALL THAT JAZZ
+*
+AF1		EQU		$F847
+A1		EQU		$F83F
+BF1		EQU		$F837
+B1		EQU		$F830
+C1		EQU		$F829
+CS1		EQU		$F823
+D1		EQU		$F81D
+EF1		EQU		$F817
+E1		EQU		$F812
+F1		EQU		$F80D
+FS1		EQU		$F808
+G2		EQU		$F804
+AF2		EQU		$7C47
+A2		EQU		$7C3F
+BF2		EQU		$7C37
+B2		EQU		$7C30
+C2		EQU		$7C29
+CS2		EQU		$7C23
+D2		EQU		$7C1D
+EF2		EQU		$7C17
+E2		EQU		$7C12
+F2		EQU		$7C0D
+FS2		EQU		$7C08
+G3		EQU		$7C04
+AF3		EQU		$3E47
+A3		EQU		$3E3F
+BF3		EQU		$3E37
+B3		EQU		$3E30
+C3		EQU		$3E29
+CS3		EQU		$3E23
+D3		EQU		$3E1D
+EF3		EQU		$3E17
+E3		EQU		$3E12
+F3		EQU		$3E0D
+FS3		EQU		$3E08
+G4		EQU		$3E04
+AF4		EQU		$1F47
+A4		EQU		$1F3F
+BF4		EQU		$1F37
+B4		EQU		$1F30
+C4		EQU		$1F29
+CS4		EQU		$1F23
+D4		EQU		$1F1D
+EF4		EQU		$1F17
+E4		EQU		$1F12
+F4		EQU		$1F0D
+FS4		EQU		$1F08
+RS		EQU		$0004
+TR		EQU		TG
+;*************************************;
+;Organ Tune Table - in 4th octave
+;*************************************;
+; Oscillator Mask(1), Delay(1), Duration(2)
+ORGTAB  FCB    3*4
+;43CD / ? / ? = 05FC
+;6BA2 / ? / ? = 11F0
+;556D / ? / ? = 071E
+;;
+;;	(Listed as A Flat in 4th octave (AF4), but it sounds like a G6 note)
+;;	$03 = octave, $47 = AF, $05 = delay?, $FC = duration?
+;;
+        FDB		$0347, $05FC                    
+;;
+;;	(Listed as E in 4th octave (E4), but it sounds like a D#7 note)
+;;	$03 = octave, $47 = E, $11 = delay?, $F0 = duration?
+;;
+        FDB		$0312, $11F0                    
+;;
+;;	(Listed as C in 4th octave (C4), but it sounds like a B6 note)
+;;	$03 = octave, $29 = C, $07= delay?, $1E = duration?
+;;
+        FDB		$0329, $071E                    
+;;---------------------------------------------------------------------
+;;		
+;;	(This is where the Walsh Function synth code begins. This routine
+;;	is huge and accounts for almost 30% of the entire ROM.  Because
+;;	the Walsh Function isn't used in the cockpit rear sound board ROM,
+;;	the routine gets skipped completely and never runs!  This means you
+;;	could technically build VSNDRM10 without the Walsh routine, but the
+;;	checksum would be different.)
+;;
+;;---------------------------------------------------------------------
+		IFNDEF	STEREO
+		ORG 	$F686			;;(VSNDRM9)
+		ELSE
+		ORG 	$F684			;;(VSNDRM10)
+		ENDIF
+;;	(Unused Glitchy Noise Loader)
+NOISELD	TAB						;;(we now return to our regularly 
+								;;scheduled program...)
+		BGT		NOISEB
+		ASLB
+		ASLB 
+ 		ASLB  
+		ASLB 
+		STAB	$03
+		TAB
+		LDAA	#$04
+		SBA
+NOILOOP	PSHA
+		JSR		NSTART
+		LDAB	$03
+		ADDB	#$30
+		STAB	$03
+		JSR		NSTART
+		LDAB	$03
+		SUBB	#$18
+		STAB	$03
+		JSR		NSTART
+		PULA
+		DECA
+		BNE		NOILOOP
+		RTS
+NOISEB	LDAB	#$7F
+		JSR 	NOISOUT
+		LDAB	#$C0
+		JSR 	NOISOUT
+		LDAB	#$FF
+		JSR 	NOISOUT
+		LDAB	#$7F
+		JSR 	NOISOUT
+		LDAB	#$3F
+		JSR 	NOISOUT
+		RTS
+NSTART	LDAB	$03
+NOISOUT	STAB	SOUND
+		LDX		#$0040
+NDIVLP 	BSR		NOISE1
+NDIVLP2 PSHA
+		LDAB	#$03
+NDIVLP3	BSR		NOISE1
+		DECB
+		BNE		NDIVLP3
+		PULA
+		DECA
+		BNE		NDIVLP2
+		BSR		NOISE1
+		CMPA	#$7F
+		BGT		NDIVLP
+		COM		SOUND
+		DEX
+		BNE		NDIVLP
+		RTS
+;;
+;;	(Appears to be a general noise routine.  There's similarities to
+;;	routines found in other sound roms.  NOISE1 gets called a lot by
+;;	in this section of the code.)
+;;	
+NOISE1 	LDAA	LO 				;GET RANDOM BIT
+		LSRA
+		EORA	LO
+		LSRA 
+		LSRA
+		ROR		HI
+		ROR		LO				
+		RTS  
+;;---------------------------------------------------------------------
+;;
+;;	(Will-I-ROMS calls this SYNTH28.  It gets called by Diagnostic
+;;	Processing for checksum verification. This routine makes a weird
+;;	bubbly pitch bend noise)
+;;
+DIAGNOI	CLRA
+		STAA	SOUND
+		LDX		#ENDRAM			;;?
+DIAGMLP	STX		TEMPA
+		LDAA	TEMPB
+DIAGLP1	DECA
+		PSHA
+		PULA
+		PSHA
+		PULA
+		PSHA
+		PULA
+		BNE		DIAGLP1
+		COM		SOUND
+		LDAA	TEMPB
+DIAGLP2	DECA
+		PSHA
+		PULA
+		PSHA
+		PULA
+		PSHA
+		PULA
+		BNE		DIAGLP2
+		COM		SOUND
+		BSR		NOISE1
+		TAB
+DIAGBL1	DECB
+		BNE		DIAGBL1
+		COM		SOUND
+		TAB 
+DIAGBL2	DECB
+		BNE		DIAGBL2
+		COM		SOUND
+		INC		SOUND
+		DEX  
+		BNE		DIAGMLP
+		RTS
+;;---------------------------------------------------------------------
+;;
+;;	(Will-I-ROMS labeled this as SYNTH29.  It doesn't look like this is
+;;	called anywhere.  This routine makes an even more weird glitchy
+;;	bass stab noise using a similar "stacker" subroutine in DIAGNOI)
+;;
+WEIRD	CLRA
+		STAA	SOUND
+		LDX		#$01
+WEIRMLP STX		TEMPA
+		LDAA	TEMPB
+WEIRLP1 DECA
+		PSHA
+		PULA
+		PSHA
+		PULA
+		PSHA
+		PULA
+		BNE		WEIRLP1
+		COM		SOUND
+		LDAA	TEMPB
+WEIRLP2 DECA
+		PSHA
+		PULA
+		PSHA
+		PULA
+		PSHA
+		PULA 
+		BNE		WEIRLP2
+		COM		SOUND
+		BSR		NOISE1
+WLDBLP1	LDAB	#$20
+WDECBL1	DECB
+		BNE		WDECBL1
+		DECA
+		BNE		WLDBLP1
+		COM		SOUND
+		BSR		NOISE1
+WLDBLP2	LDAB	#$20
+WDECBL2	DECB 
+		BNE		WDECBL2
+		DECA 
+		BNE		WLDBLP2
+		COM		SOUND
+		INC		SOUND
+		INX
+		CMPX	#$0010
+		BNE		WEIRMLP
+		RTS
+;;---------------------------------------------------------------------
+;;
+;;	(This initializes the unused background drone)	
+;;
+BGCLRFG	EQU		$0003
+BGPITCH	EQU		$05
+BGA		EQU		$60
+BGB		EQU		$13
+;;
+DRONELD	CLR		BGCLRFG
+		ASLB 
+		ASLB 
+		ASLB
+		STAB	BGPITCH
+		LDAA	#$01
+		STAA	BG1FLG
+		RTS
+;;
+DROSYN	LDAA	#BGA
+		STAA	SOUND
+;;
+DROLP1	LDAA	BGPITCH
+;;
+DROA11	LDAB	#BGB
+;;
+DROB11	DECB
+		BNE		DROB11
+		DECA
+		BNE		DROA11
+		COM		SOUND
+		LDAA	BGPITCH
+;;
+DROA12  LDAB	#BGB
+;;
+DROB12	DECB 
+		BNE		DROB12
+		DECA
+		BNE		DROA12
+		COM		SOUND
+		INC		SOUND
+		LDAA	#$7F
+		CMPA	SOUND
+		BNE		DROLP1
+;;
+DROLP2	LDAA	BGPITCH
+;;
+DROA21	LDAB  	#BGB
+;;
+DROB21	DECB
+		BNE		DROB21
+		DECA 
+		BNE		DROA21
+		COM		SOUND
+		LDAA	BGPITCH
+;;
+DROA22	LDAB 	#BGB
+;;
+DROB22	DECB
+		BNE		DROB22
+		DECA
+		BNE		DROA22
+		COM		SOUND
+		DEC		SOUND
+		LDAA	#BGA
+		CMPA	SOUND
+		BNE		DROLP2
+		BRA		DROLP1
+SVTAB	EQU		$F9BB
+GWVTAB	EQU		$F90C
+GFRTAB	EQU		$FA24
+TRANS	EQU		$FA9A
+;;---------------------------------------------------------------------
+*
+*
+*GWAVE LOADER
+GWLD	TAB						;MULKT BY 7
+		ASLB
+		ABA
+		ABA
+		ABA
+		LDX		#SVTAB			;SOUND VECTOR TABLE
+		JSR		ADDX
+		LDAA	0,X
+		TAB
+		ANDA	#$F
+		STAA	GCCNT			;GET CYCLE COUNT
+		LSRB
+		LSRB
+		LSRB
+		LSRB
+		STAB	GECHO			;GET #ECHOS
+		LDAA	1,X
+		TAB
+		LSRB
+		LSRB
+		LSRB
+		LSRB
+		STAB	GECDEC
+		ANDA	#$F				;WAVE #
+		STAA	TEMPA			;SAVE
+		STX		TEMPX			;SAVE INDEX
+		LDX		#GWVTAB			;CALC WAVEFORM ADDR
+GWLD2	DEC		TEMPA			;WAVE FORM #
+		BMI		GWLD3			;FINIS
+		LDAA	0,X
+		INCA
+		JSR		ADDX
+		BRA		GWLD2
+GWLD3	STX		GWFRM
+		JSR		WVTRAN			;XSFER WAVE TO RAM
+		LDX		TEMPX			;RESTORE INDEX
+		LDAA	2,X				;GET PREDECAY
+		STAA	PRDECA
+		JSR		WVDECA			;DECAY IT
+		LDX		TEMPX
+		LDAA	3,X				;GET FREQ INC
+		STAA	GDFINC
+		LDAA	4,X				;GET DELTA FREQ COUNT
+		STAA	GDCNT
+		LDAA	5,X				;GET PATTERN COUNT
+		TAB						;SAVE
+		LDAA	6,X				;PATTERN OFFSET
+		LDX		#GFRTAB
+		JSR		ADDX
+		TBA						;GET PATTERN LENGTH
+		STX		GWFRQ			;FREQ TABLE ADDR
+		CLR		FOFSET
+		JSR		ADDX
+		STX		FRQEND
+		RTS
+*
+*GWAVE ROUTINE
+*ACCA= FREQ PATTERN LENGTH, X= FREQ PAT ADDR
+*
+GWAVE	LDAA	GECHO
+		STAA	GECNT
+GWT4	LDX		GWFRQ
+		STX		XPLAY
+GPLAY	LDX		XPLAY			;GET NEW PERIOD
+		LDAA	0,X
+		ADDA	FOFSET
+		STAA	GPER
+		CPX		FRQEND
+		BEQ		GEND			;FINISH ON ZERO
+		LDAB	GCCNT			;CYCLE COUNT
+		INX
+		STX		XPLAY
+GOUT	LDX		#GWTAB			;SETUP WAVEFORM POINTER
+GOUTLP	LDAA	GPER
+GPRLP	DECA					;WAIT FOR PERIOD
+		BNE		GPRLP
+		LDAA	0,X				;OUTPUT SOUND
+		;;
+		LSRA					;;(new instruction added to VSNDRM9)
+		;;
+		STAA	SOUND
+GPR1	INX
+		CPX		WVEND			;END OF WAVE?
+		BNE		GOUTLP
+		DECB
+		BEQ		GPLAY
+		INX
+		DEX
+		INX
+		DEX
+		INX
+		DEX
+		INX
+		DEX
+		NOP
+		NOP
+		BRA		GOUT			;SYNC 36
+GEND	LDAA	GECDEC
+		BSR		WVDECA
+GEND40	DEC		GECNT			;ECHO ON?
+		BNE		GWT4			;YES
+		;;
+;		BNE		GEND1			;;(this instruction is missing in VSNDRM9)
+		;;
+GEND50	LDAA	GDFINC			;CONTINUE FOR FREQ MOD SOUNDS
+		BEQ		GEND1			;NO
+		DEC		GDCNT			;DELTA FREQ OVER?
+		BEQ		GEND1			;YES...
+		ADDA	FOFSET			;UPDATE FREQ OFFSET
+GEND60	STAA	FOFSET
+GEND61	LDX		GWFRQ			;GET INDEX
+		CLRB					;START FOUND FLAG INIT CLEAR
+GW0		LDAA	FOFSET			;INC OR DEC?
+		TST		GDFINC
+		BMI		GW1				;DEC
+		ADDA	0,X				;INC
+		BCS		GW2				;CARRY=OVERFLOW
+		BRA		GW2A
+GW1		ADDA	0,X				;DEC
+		BEQ		GW2				;OVERFLOW ON EQ
+		BCS		GW2A			;OVERFLOW IF CARRY CLEAR
+GW2		TSTB					;FOUND START YET?
+		BEQ		GW2B			;NO
+		BRA		GW3				;YES, THIS IS THE END
+GW2A	TSTB
+		BNE		GW2B			;ALREADY FOUND START
+		STX		GWFRQ			;FOUND START
+		INCB
+GW2B	INX
+		CPX		FRQEND
+		BNE		GW0				;NOT OVER YET
+		TSTB					;FOUND START?
+		BNE		GW3				;YES
+		RTS						;ALL OVER
+GW3		STX		FRQEND
+		LDAA	GECDEC			;RE:XSFER WAVE?
+		BEQ		GEND0			;NO
+		BSR		WVTRAN			;XSFER WAVE
+		LDAA	PRDECA
+		BSR		WVDECA
+GEND0	JMP		GWAVE
+GEND1	RTS						;TERMINATE
+*
+*WAVE TRANSFER ROUTINE
+*
+WVTRAN	LDX		#GWTAB
+		STX		XPTR
+		LDX		GWFRM
+		LDAB	0,X				;GET WAVE LENGTH
+		INX
+		JSR		TRANS
+		LDX		XPTR
+		STX		WVEND			;GET END ADDR
+		RTS
+*
+*WAVE DECAY ROUTINE/ DECAY AMOUNT IN ACCA(1/16 PER DECAY)
+*
+WVDECA	TSTA
+		BEQ		WVDCX			;NO DECAY
+		LDX		GWFRM			;ROM WAVE INDEX
+		STX		XPLAY
+		LDX		#GWTAB
+		STAA	TEMPB			;DECAY FACTOR
+WVDLP	STX		XPTR
+		LDX		XPLAY
+		LDAB	TEMPB
+		STAB	TEMPA			;DECAY FACTOR TEMP
+		LDAB	1,X				;OFFSET FOR WAVE LENGTH
+		LSRB
+		LSRB
+		LSRB
+		LSRB					;CALC 1/16TH
+		INX
+		STX		XPLAY
+		LDX		XPTR
+		LDAA	0,X
+WVDLP1	SBA						;DECAY
+		DEC		TEMPA
+		BNE		WVDLP1
+		STAA	0,X
+		INX
+		CPX		WVEND			;END OF WAVE?
+		BNE		WVDLP			;NO
+WVDCX	RTS
+		END
