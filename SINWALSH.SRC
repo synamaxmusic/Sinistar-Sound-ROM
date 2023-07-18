@@ -47,17 +47,17 @@
 ;	Presets require Waveform and Pitch Programs to generate sound and
 ;	they are defined through hard-to-understand macros like this:
 ;
-; 	LBL SCREMP
-;	NOT 60
-;	LDV -512
-;	WAIT 16
-;	LDV 0
-;	WAIT 100
-;	LBL SCRMA
-;	LDV 80
-;	DO 13,PPLD
-;	LDV 64
-;	DO 4,PPLD
+; 	LBL	SCREMP
+;	NOT 	60
+;	LDV 	-512
+;	WAIT 	16
+;	LDV 	0
+;	WAIT 	100
+;	LBL 	SCRMA
+;	LDV 	80
+;	DO 	13,PPLD
+;	LDV 	64
+;	DO 	4,PPLD
 ;	STOP
 ;
 ;	These macro commands are then converted into psuedo-opcodes that
