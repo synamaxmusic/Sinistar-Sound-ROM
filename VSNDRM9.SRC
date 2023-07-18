@@ -2,7 +2,7 @@
 ;	 SSSS  IIIII  N   N  IIIII   SSSS  TTTTT   AAA   RRRR
 ;	S        I    NN  N    I    S        T    A   A  R   R
 ;	 SSS     I    N N N    I     SSS     T    AAAAA  RRRR
-;		S    I    N  NN    I        S    T    A   A  R  R
+;	    S    I    N  NN    I        S    T    A   A  R  R
 ;	SSSS   IIIII  N   N  IIIII  SSSS     T    A   A  R   R
 ;
 ;   SINISTAR SOUND ROM (Recreation started by SynaMax - 07/14/2023)
@@ -12,7 +12,7 @@
 ;	Sinistar's upright cabinet uses VSNDRM9 for mono audio, but
 ;	the rare cockpit version uses both VSNDRM9 and VSNDRM10 for stereo.
 ;
-;	Uncomment "STEREO	EQU	1" to build VSNDRM10.
+;	Uncomment "STEREO EQU 1" to build VSNDRM10.
 ;
 ;;---------------------------------------------------------------------
 ;
@@ -38,26 +38,26 @@
 ;
 ;;---------------------------------------------------------------------
 ;
-;   Thanks to historicalsource for preserving the source code
-;   to the first four Video Sound ROMs found in the following
-;   classic Williams arcade games: Defender, Stargate, Robotron,
-;   and Joust.  Joust and Sinistar are the only games that are known
-;   to use the Walsh Function routine, which is one of the most
-;   complex synths found in any of the ROMs.  Without this,
-;   my reassembly of Sinistar's sound code would've been impossible.
+;	Thanks to historicalsource for preserving the source code
+;	to the first four Video Sound ROMs found in the following
+;	classic Williams arcade games: Defender, Stargate, Robotron,
+;	and Joust.  Joust and Sinistar are the only games that are known
+;	to use the Walsh Function routine, which is one of the most
+;	complex synths found in any of the ROMs.  Without this,
+;	my reassembly of Sinistar's sound code would've been impossible.
 ;
-;   Huge thanks also goes out to Will-I-ROMS aka kaputnikGo,
-; 	you can view their extensive Williams disassembly files here:
-;   https://github.com/kaputnikGo/WiLL-i-ROMS/blob/master/Video%20Sound%20ROMS/Video%20Sound%20ROM%209.asm
+;	Huge thanks also goes out to Will-I-ROMS aka kaputnikGo,
+;	you can view their extensive Williams disassembly files here:
+;	https://github.com/kaputnikGo/WiLL-i-ROMS/blob/master/Video%20Sound%20ROMS/Video%20Sound%20ROM%209.asm
 ;
-;   Their disassembly of Sinistar's sound ROM was extremely helpful
-;   in deciphering much of the code, including unused routines.
-;   Their work also led me to discovering the unused Extra Ship
-;   sounds found in WALSHT and Mike Metz's corrupted ODDTBL.
+;	Their disassembly of Sinistar's sound ROM was extremely helpful
+;	in deciphering much of the code, including unused routines.
+;	Their work also led me to discovering the unused Extra Ship
+;	sounds found in WALSHT and Mike Metz's corrupted ODDTBL.
 ;
-;   Thanks to mwenge for the inspiration to attempt reassembling
-;   Sinistar's sound ROM by showing that it's possible to rebuild
-;   Defender's sound code with vasm.  His code fixes to VSNDRM1.SRC
+;	Thanks to mwenge for the inspiration to attempt reassembling
+;	Sinistar's sound ROM by showing that it's possible to rebuild
+;	Defender's sound code with vasm.  His code fixes to VSNDRM1.SRC
 ;	helped me at times where I was completely stuck and had no idea
 ;	where to go.
 ;
@@ -110,19 +110,19 @@
 *
 *SYSTEM CONSTANTS
 *
-;STEREO	EQU		1				;;(use this to build VSNDRM10)
+;STEREO	EQU	1			;;(use this to build VSNDRM10)
 WALSH 	EQU 	$F660			;;(used for jumping to SINWALSH)
 *
-ROM		EQU		$F000
-SOUND	SET		$400
-CKORG	EQU		$EF00			;CHECKSUM PROG ORG
-ENDRAM	SET		$7F
-VECTOR	EQU		$FFF8			;RESET,INT VECTORS
-WVELEN	EQU		72
+ROM	EQU	$F000
+SOUND	SET	$400
+CKORG	EQU	$EF00			;CHECKSUM PROG ORG
+ENDRAM	SET	$7F
+VECTOR	EQU	$FFF8			;RESET,INT VECTORS
+WVELEN	EQU	72
 *
-BG1FLG	EQU		$04
-NIN		EQU		5
-FIF		EQU		6
+BG1FLG	EQU	$04
+NIN	EQU	5
+FIF	EQU	6
 TACC    EQU    	4               ;TACCATA TEMPO CONSTANT
 PHANC   EQU    	3               ;PHANTOM TEMPO CONTANT
 TAF     EQU    	34715>>1        ;NOTE TIMES				;;43CD
