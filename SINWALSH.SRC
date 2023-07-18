@@ -72,11 +72,13 @@
 ;
 ;	Unfortunately, vasm6800_oldstyle doesn't support some of the macros
 ;	directives like IRPC, so the macros have been commented out.
+;	It maybe possible to get them working with more modern syntax edits.
 ;
 ;	The Wave and Pitch programs for Sinistar are copied over as raw
 ;	data via FDB and FCB, with comments to represent what the
 ;	theoretical macro commands should be.  There's a bit of guesswork
-;	involved with what this code actually means, so don't 
+;	involved with what this code actually means, so these marco
+;	comments are subject to change.
 ;
 ;;---------------------------------------------------------------------
 ;
@@ -88,7 +90,7 @@
 ;
 ;	Even though the Walsh Function is not used in VSNDRM10, the code
 ;	still exists.  When building SINWALSH for VSNDRM10, you must also
-;	define "STEREO	EQU	1" in both source files, so that the binary
+;	define "STEREO EQU 1" in both source files, so that the binary
 ;	data stays aligned.
 ;
 ;	SINWALSH data for VSNDRM10 starts two bytes earlier at $F1DB.
