@@ -223,13 +223,13 @@ RDELAY  RMB    	60              	;RAM DELAY LOAD		;;($12)
 *NOISE/CROWD ROAR ROUTINE PARAMETERS
 *
 	RORG	LOCRAM
-DECAY	RMB	1										;;($0E)
-NAMP	RMB	1										;;($0F)
-CYCNT	RMB	1										;;($10)
-NFRQ1	RMB	2										;;($11)
-NFFLG	RMB	1										;;($13)
-LFREQ	RMB	1										;;($14)
-DFREQ	RMB	1										;;($15)
+DECAY	RMB	1						;;($0E)
+NAMP	RMB	1						;;($0F)
+CYCNT	RMB	1						;;($10)
+NFRQ1	RMB	2						;;($11)
+NFFLG	RMB	1						;;($13)
+LFREQ	RMB	1						;;($14)
+DFREQ	RMB	1						;;($15)
 GALPAM	EQU	*
 CYCNT2	RMB	1
 NAMP2	RMB	1
@@ -599,6 +599,25 @@ COWARE	CMPA	#$13
 ;;
 ;;  STEREO SEPARATION DELAY (FOR VSNDRM10 ONLY)
 ;;
+;;	In order to create the stereo separation effect for GWAVE
+;;	sounds, the rear channel has to start playing shortly after the
+;;	front channel.
+;;
+;; 	This was done by loading $10FF into the X register and then
+;; 	decrementing X before continuing.  This adds around
+;;	0.097 seconds of delay.
+;;
+;; 	Changing it to a max value of $FFFF increases the delay to
+;;	around 0.644 to 0.692 seconds.
+;;
+;;	Looking at the disassembly for the Gorgar sound ROM, the same
+;;	trick was used to add a delay between the continuous heartbeats.
+;;	The instruction can be found at $FA3C and uses $3200 as the
+;;	delay amount instead of $10FF.
+;;
+;; 	These instructions also creates the side effect of muting the
+;;	bounce sound effect entirely since it plays so briefly.
+;;
 	IFDEF	STEREO
 	LDX	#$10FF
 DELAY	DEX
@@ -608,67 +627,108 @@ DELAY	DEX
 ;;
 ;;  16-18, 20-28) GWAVE SOUND EFFECTS
 ;;
+;;	Once the time delay for the stereo separation has finished,
+;;	we check for GWAVE sounds.  Sound ID $AF is the first GWAVE
+;;	sound in the list, and A register is the offset used to select
+;;	the specific parameters from the GWAVE table.
+;;
+;;	To play all the different GWAVE sounds (including unused ones),
+;;	type this in MAME's debugger to trigger the Sinibomb sound ($AF)
+;;	when inserting a coin:
+;;
+;;	maincpu.rw@4dfd = b0af
+;;
+;;	Then change the value at $F18A so that the soundcpu can pull
+;;	up a different sound:
+;;
+;; 	soundcpu.rb@f18a = 10 (UNUSED WARNING?)
+;; 	soundcpu.rb@f18a = 0F (SINISTAR ERROR)
+;; 	soundcpu.rb@f18a = 0E (AF = SINI-BOMB) (Original value)
+;; 	soundcpu.rb@f18a = 0D (AE = PLAYER FIRE)
+;; 	soundcpu.rb@f18a = 0C (AD = ENEMY FIRE)
+;; 	soundcpu.rb@f18a = 0B (UNUSED BOUNCE SOUND EFFECT)
+;; 	soundcpu.rb@f18a = 0A (AB = BOUNCE)
+;; 	soundcpu.rb@f18a = 09 (AA = ENEMY CRYSTAL PICKUP)
+;; 	soundcpu.rb@f18a = 08 (A9 = UNUSED FIRE?)
+;; 	soundcpu.rb@f18a = 07 (A8 = CRYSTAL BOMB-BAY FULL)
+;; 	soundcpu.rb@f18a = 06 (A7 = CRYSTAL FLASHING)
+;; 	soundcpu.rb@f18a = 05 (A6 = GAME OVER CUE)
+;; 	soundcpu.rb@f18a = 04 (A5 = UNUSED BLASTER "ENERGY CRITICAL" ALARM)
+;; 	soundcpu.rb@f18a = 03 (A4 = START CUE)
+;; 	soundcpu.rb@f18a = 02 (A3 = PLAYER CRYSTAL PICKUP)
+;;
+;; 	There is a glitch in MAME's debugger that prevents $0B
+;; 	from showing up in RAM so you would have to manually
+;; 	edit the ROM to hear that sound.
+;;
 GWAVSFX	CMPA	#$1C			
-		BGT 	RUNRUN		
-		SUBA	#$0E
-PLAYSFX JSR		$F7DA			
-		JMP		$F840	
+	BGT 	RUNRUN		
+	SUBA	#$0E
+PLAYSFX JSR	$F7DA			
+	JMP	$F840	
 ;;---------------------------------------------------------------------
 ;;
 ;;  29) "RUN RUN RUN"
 ;;		
 RUNRUN	CMPA	#$1D
-		BGT 	SHUTUP		
- 		LDAB    TALK
+	BGT 	SHUTUP		
+ 	LDAB    TALK
         CMPB    #$7E
-		BNE		ERROR				
-		LDAA	#$07
- 		JMP    	TALK
+	BNE	ERROR				
+	LDAA	#$07
+ 	JMP    	TALK
 ;;---------------------------------------------------------------------
 ;;
 ;;  31) SHUT UP SINISTAR
 ;;	
+;;	This is used to mute Sinistar speech.
+;;
 SHUTUP 	RTS 
 ;;---------------------------------------------------------------------
 ;;
-;;`
+;;  NO SPEECH ERROR NOISE
+;;
+;;	If the speech board is disconnected for VSNDRM9, then play the
+;;	Sinistar Error noise.  Since there's no speech board attached
+;;	to VSNDRM10's sound board, an RTS replaces the error noise,
+;;	muting the sound call entirely.
 ;;		
-		IFNDEF	STEREO		
+	IFNDEF	STEREO		
 ERROR	LDAA	#$01
-		JMP		PLAYSFX
-		ELSE
+	JMP	PLAYSFX
+	ELSE
 ERROR	RTS
-		ENDIF
+	ENDIF
 ;;---------------------------------------------------------------------
 *
 * ADD A TO INDEX REGISTER
 *
-ADDX	STX		XPLAY
-		ADDA	XPLAY+1
-		STAA	XPLAY+1
-		LDAA	XPLAY
-		ADCA	#0
-		STAA	XPLAY
-ADDX1	LDX		XPLAY
-		RTS
+ADDX	STX	XPLAY
+	ADDA	XPLAY+1
+	STAA	XPLAY+1
+	LDAA	XPLAY
+	ADCA	#0
+	STAA	XPLAY
+ADDX1	LDX	XPLAY
+	RTS
 *
 * DIAGNOSTIC PROCESSING HERE
 *
-NMI		SEI
-		LDS		#ENDRAM			;RESET THE STACK
-		LDX		#$FFFF
-		CLRB
+NMI	SEI
+	LDS	#ENDRAM			;RESET THE STACK
+	LDX	#$FFFF
+	CLRB
 NMI1	ADCB	0,X
-		DEX
-		CPX		#$F000	
-		BNE		NMI1
-		CMPB	0,X				;;(The checksum should be $BE, but
-								;;because it's defined as $AA, the
-								;;the checksum fails.)
-		BEQ		NMI2
-		WAI						;;(test failed, wait forever)
-NMI2	JSR		DIAGNOI			;;(play Diagnoistic Synth Noise?)
-		BRA 	NMI				;;(loop forever)
+	DEX
+	CPX	#$F000	
+	BNE	NMI1
+	CMPB	0,X			;;(The checksum should be $BE, but
+					;;because it's defined as $AA, the
+					;;the checksum fails.)
+	BEQ	NMI2
+	WAI				;;(test failed, wait forever)
+NMI2	JSR	DIAGNOI			;;(play Diagnoistic Synth Noise?)
+	BRA 	NMI			;;(loop forever)
 *
 * NOTE DEFINITIONS AND ALL THAT JAZZ
 *
