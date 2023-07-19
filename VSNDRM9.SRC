@@ -1097,7 +1097,6 @@ DROB22	DECB
 	BNE	DROLP2
 	BRA	DROLP1
 SVTAB	EQU	$F9BB
-GWVTAB	EQU	$F90C
 GFRTAB	EQU	$FA24
 TRANS	EQU	$FA9A
 ;;---------------------------------------------------------------------
