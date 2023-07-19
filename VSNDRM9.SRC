@@ -299,7 +299,9 @@ RAMCLR	CLR 0,X				;;(wipe out the RAM)
 *
 ORGASM	CLR 	ORGFLG
 	STAA	TEMPA			;TUNE NUMBER
+	;;
 	PSHA				;;(this is a new instruction)
+	;;
 	LDX	#ORGTAB
 ORGNT2	LDAA	0,X			;TUNE TABLE LENGTH
 	BEQ	ORGNT5			;INVALID TUNE
@@ -688,8 +690,8 @@ DELAY	DEX
 GWAVSFX	CMPA	#$1C			
 	BGT 	RUNRUN		
 	SUBA	#$0E
-PLAYSFX JSR	$F7DA			
-	JMP	$F840	
+PLAYSFX JSR	GWLD			
+	JMP	GWAVE	
 ;;---------------------------------------------------------------------
 ;;
 ;;  29) "RUN RUN RUN"
@@ -1286,12 +1288,19 @@ WVDLP1	SBA				;DECAY
 	CPX	WVEND			;END OF WAVE?
 	BNE	WVDLP			;NO
 WVDCX	RTS
+;;---------------------------------------------------------------------
 *
 *VARI VECTORS
 *
 VVECT	EQU	*
 *	NONE AS OF YET			;;(variwave is not used in VSNDRM9) 
 *
+;;---------------------------------------------------------------------
+;;
+;;  GWAVE WAVEFORM TABLE (GWVTAB)
+;;
+;;	
+;;
 *
 *WAVE TABLE
 *1ST BYTE= WAVELENGTH
@@ -1311,7 +1320,8 @@ GS1	FCB	16
 	FCB	127,176,217,245,255,245,217,176
 	FCB	127,78,36,9,0,9,36,78
 ;;
-;; NEW WAVEFORM #3 (28-BYTE SINE WAVE)
+;; NEW WAVEFORM #3 (28-BYTE ROUNDED SQUARE WAVE)
+;; (replaces GS12 - SINE WAVE 1ST AND 2ND OCTAVES)
 GS28	FCB	28 
 	FCB	128,64,41,27,16,9,6,4
 	FCB	7,12,18,30,48,73,164,201 
@@ -1319,6 +1329,7 @@ GS28	FCB	28
 	FCB	234,221,199,155
 ;;
 ;; (SQUARE WAVE - 1ST OCTAVE)
+;; (double version of GSQ2)
 GSQ22	FCB	16
 	FCB	$FF,$FF,$FF,$FF,0,0,0,0
 	FCB	$FF,$FF,$FF,$FF,0,0,0,0
@@ -1343,6 +1354,40 @@ GS72	FCB	72
 ;; NEW WAVEFORM #7 (SQUARE WITH DECAY)
 	FCB	7
 	FCB	64,9,53,12,41,15,32
+;;---------------------------------------------------------------------
+;;
+;;  GWAVE "PRESET" PARAMETERS
+;;  aka SOUND VECTOR TABLE (SVTAB)
+;;	
+;;	BYTE 0: ECHO COUNT, PLAYS PER PERIOD
+;;	BYTE 1: ECHO DECAY AMOUNT, WAVEFORM #
+;;	BYTE 2: INITIAL DECAY AMOUNT
+;;	BYTE 3: BASE PERIOD CHANGE
+;;	BYTE 4: NUMBER OF REPEATS
+;;	BYTE 5: FREQ PATTERN LENGTH
+;;	BYTE 6: FREQ PATTERN OFFSET (starts at GFRTAB)
+;;
+;;	ECHO repeats the frequency pattern, while ECHO DECAY reduces
+;;	the volume on every consecutive echo.  
+;;
+;;	PLAYS PER PERIOD acts almost like a tempo control by stretching
+;;	out the waveform.
+;;
+;;	START CUE
+;;	Mike Metz either created this sound with corruption or by
+;;	randomly typing in different values.  There's some numbers here
+;;	that don't make any sense.  
+;;
+;;	$88   $F3  $90  $13  $B7  $04  $00
+;;	8,8  15,3  144   19  183    4    0
+;;
+;;	The number of repeats aka "variable freq count" has a value of
+;;	183($B7), however only 2 repeats are heard in-game.  This means
+;;	that if the sound plays uninterrupted, it will repeat 183 times!
+;;	Base period change aka "GDFINC" is 19($13), so it will decrease
+;;	the pitch with every repeat.  This causes the full duration
+;;	of the sound to be almost 11 minutes!!
+;;
 *
 *GWAVE SOUND VECTOR TABLE
 *VECTOR FORMAT
