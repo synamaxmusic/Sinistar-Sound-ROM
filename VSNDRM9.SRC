@@ -137,9 +137,8 @@ TE      EQU    	55108>>1
 TF      EQU    	58385>>1
 TFS     EQU    	61857>>1
 TG      EQU    	65535>>1
-;;	Added Constants
+;; Added Constants
 RAM	SET	$0000
-WRAM	SET	$0000
 *
 *
 * TALKING EQUATES
@@ -238,71 +237,71 @@ DECAY2	RMB	1
 NFFLG2	RMB	1
 NFR2	RMB	1
 GALCNT	RMB	1
-WHIS	RMB	1				;CROWD ROAR AMP
-WFRQ	RMB	1				;CROWD WHISTLE FREQ
-WCNT	RMB	1				;WHISTLE PASSCOUNTER
-PTRHI	RMB	2				;WHIS ADR PTR
+WHIS	RMB	1			;CROWD ROAR AMP
+WFRQ	RMB	1			;CROWD WHISTLE FREQ
+WCNT	RMB	1			;WHISTLE PASSCOUNTER
+PTRHI	RMB	2			;WHIS ADR PTR
 WFRQ2	RMB	1
 WCNT2	RMB	1
-CURVAL	RMB	1				;WHISTLING NOISE OUTPUT
-ATP	RMB	1				;INTERM NOISE VAL
-MINWIS	RMB	1				;MIN WHISTLE FREQ
-CY2	RMB	1				;NOISE CYCLE COUNTER
-DFRQ	RMB	1				;WHISTLE FREQ CHANGE
-DFRQ2	RMB	1				;INIT WHISTLE FREQ CHANGE
-NNOIS	RMB	1				;NEXT NOISE VALUE
-NFRQ	RMB	1				;NOISE FREQ
-NFRQ2	RMB	1				;INIT NOISE FREQ
+CURVAL	RMB	1			;WHISTLING NOISE OUTPUT
+ATP	RMB	1			;INTERM NOISE VAL
+MINWIS	RMB	1			;MIN WHISTLE FREQ
+CY2	RMB	1			;NOISE CYCLE COUNTER
+DFRQ	RMB	1			;WHISTLE FREQ CHANGE
+DFRQ2	RMB	1			;INIT WHISTLE FREQ CHANGE
+NNOIS	RMB	1			;NEXT NOISE VALUE
+NFRQ	RMB	1			;NOISE FREQ
+NFRQ2	RMB	1			;INIT NOISE FREQ
 RCNT2	RMB	1
-		REND
+	REND
 *
 *
 * MAIN PROGRAM
 *
 	ORG	ROM
-	FCB	$AA				;CHECKSUM BYTE
+	FCB	$AA			;CHECKSUM BYTE
 *	
 *
-SETUP	SEI					;SET INTERRUPT MASK
-	LDS	#ENDRAM				;INITIALIZE STACK POINTER
-	LDX	#SOUND				;INDEX TO PIA
-	CLR	1,X				;ACCESS DDRA
-	CLR	3,X				;ACCESS DDRB
-	LDAA	#$FF				;PA0-PA7
-	STAA	0,X				;SET SIDE A AS OUTPUTS
-	LDAB	#ENDRAM+1			;;(new instruction) (used for clearing RAM)
-	STAB	2,X				;;(only found in Sinistar/Bubbles) (Joust has CLR 2,X)
-	LDAA	#$37				;CB2 LOW, IRQ ALLOWED
-	STAA	3,X				;PROGRAM B CONTROL REG
-	LDAA	#$3C				;CA2 SET INIT HIGH, NO IRQS
-	STAA	1,X				;PROGRAM A SIDE
-	STAB	2,X				;;(new instruction) (store in port B PIA1)
+SETUP	SEI				;SET INTERRUPT MASK
+	LDS	#ENDRAM			;INITIALIZE STACK POINTER
+	LDX	#SOUND			;INDEX TO PIA
+	CLR	1,X			;ACCESS DDRA
+	CLR	3,X			;ACCESS DDRB
+	LDAA	#$FF			;PA0-PA7
+	STAA	0,X			;SET SIDE A AS OUTPUTS
+	LDAB	#ENDRAM+1		;;(new instruction) (used for clearing RAM)
+	STAB	2,X			;;(only found in Sinistar/Bubbles) (Joust has CLR 2,X)
+	LDAA	#$37			;CB2 LOW, IRQ ALLOWED
+	STAA	3,X			;PROGRAM B CONTROL REG
+	LDAA	#$3C			;CA2 SET INIT HIGH, NO IRQS
+	STAA	1,X			;PROGRAM A SIDE
+	STAB	2,X			;;(new instruction) (store in port B PIA1)
 	LDX	#ENDRAM
-RAMCLR	CLR 0,X					;;(wipe out the RAM)
+RAMCLR	CLR 0,X				;;(wipe out the RAM)
 	DEX
-	BNE	RAMCLR				;;(are we done yet?)
-	LDAA	#$3C				;;(grab number for the random generator)	
-	STAA	HI				;START RANDOM GENERATOR
-	CLI					;CLEAR INTERRUPTS
-	BRA	*				;WAIT FOR INTERRUPT
+	BNE	RAMCLR			;;(are we done yet?)
+	LDAA	#$3C			;;(grab number for the random generator)	
+	STAA	HI			;START RANDOM GENERATOR
+	CLI				;CLEAR INTERRUPTS
+	BRA	*			;WAIT FOR INTERRUPT
 ;;
 ORGASM	CLR 	ORGFLG
-	STAA	TEMPA				;TUNE NUMBER
-	PSHA					;;(this is a new instruction)
+	STAA	TEMPA			;TUNE NUMBER
+	PSHA				;;(this is a new instruction)
 	LDX	#ORGTAB
-ORGNT2	LDAA	0,X				;TUNE TABLE LENGTH
-	BEQ	ORGNT5				;INVALID TUNE
+ORGNT2	LDAA	0,X			;TUNE TABLE LENGTH
+	BEQ	ORGNT5			;INVALID TUNE
 	DEC 	TEMPA
 	BEQ	ORGNT3
 	INCA
 	JSR	ADDX
 	BRA	ORGNT2
 ORGNT3	INX
-	STX	XPTR				;NOTE POINTER
+	STX	XPTR			;NOTE POINTER
 	JSR	ADDX
-	STX	XPLAY				;TUNE END
+	STX	XPLAY			;TUNE END
 	LDX	XPTR
-ORGNT4	LDAA	0,X				;TUNE LOOP
+ORGNT4	LDAA	0,X			;TUNE LOOP
 	STAA 	OSCIL			
 	LDAA	1,X
 	LDX	2,X
@@ -316,36 +315,36 @@ ORGNT4	LDAA	0,X				;TUNE LOOP
 	STX	XPTR
 	CPX	XPLAY
 	BNE	ORGNT4
-ORGNT5	PULA					;;(In VSNDRM3, this is just an RTS)
+ORGNT5	PULA				;;(In VSNDRM3, this is just an RTS)
 	BRA	BGTEST
-ORGANL  LDX	#RDELAY				;;(There's some changes here from VSNDRM3)
-LDLP	CMPA	#0				;;(original was:        SUBA	#2)
-	BEQ 	LD1				;;(original was: LDLP	BLS	LD1)
+ORGANL  LDX	#RDELAY			;;(There's some changes here from VSNDRM3)
+LDLP	CMPA	#0			;;(original was:        SUBA	#2)
+	BEQ 	LD1			;;(original was: LDLP	BLS	LD1)
 	CMPA	#3
 	BEQ	LD2
-	LDAB	#1				;NOP
+	LDAB	#1			;NOP
 	STAB	0,X
 	INX
 	SUBA	#2
 	BRA	LDLP
-LD2	LDAB	#$91				;CMPA 0
+LD2	LDAB	#$91			;CMPA 0
 	STAB	0,X
 	CLR	1,X
 	INX
 	INX
-LD1	LDAB	#$7E				;JMP START2
+LD1	LDAB	#$7E			;JMP START2
 	STAB	0,X
-	LDAB   	#ORGAN1>>8 			;;(original was: LDAB #ORGAN1!>8    ;MSB)		
+	LDAB   	#ORGAN1>>8 		;;(original was: LDAB #ORGAN1!>8    ;MSB)		
 	STAB	1,X
-	LDAB  	#ORGAN1&$FF			;;(original was: LDAB #ORGAN1!.$FF  ;LSB)
+	LDAB  	#ORGAN1&$FF		;;(original was: LDAB #ORGAN1!.$FF  ;LSB)
 	STAB	2,X
 ORGAN	LDX	DUR
 ORGAN1	CLRA 
-	FCB	$F6				;LOAD B EXTND TEMPB
+	FCB	$F6			;LOAD B EXTND TEMPB
 	FDB	TEMPB	
 	INCB	
 	STAB	TEMPB
-	ANDB	OSCIL				;MASK OSCILLATORS
+	ANDB	OSCIL			;MASK OSCILLATORS
 	LSRB
 	ADCA	#0
 	LSRB
@@ -368,19 +367,25 @@ ORGAN1	CLRA
 	ASLA
 	STAA	SOUND	
 	DEX	
-	BEQ	ORGAN2				;NOTE OVER?
+	BEQ	ORGAN2			;NOTE OVER?
 	JMP	RDELAY	
 ORGAN2	RTS  
 *
 * INTERRUPT PROCESSING
 *
-IRQ		LDS		#ENDRAM			;RE-INITIALIZE STACK
-		LDAA	SOUND+2			;GET INPUT TRIGGER
-		CLI						;NOW ALLOW IRQS
-		COMA 					;INVERT INPUT
-		ANDA 	#$1F			;MASK GARB
-		BSR		QMESG			;;(start checking sound ID)
-;;---------------------------------------------------------------------
+;;
+;; 	The sound IDs referenced in the game logic's sound calls
+;; 	are actually inverted so $BE = 1, $BD = 2, $BC = 3, etc. 
+;; 	We start by loading the input trigger at $0402, invert it,
+;; 	then AND it until we get the final number.
+;;
+IRQ	LDS	#ENDRAM			;RE-INITIALIZE STACK
+	LDAA	SOUND+2			;GET INPUT TRIGGER
+	CLI				;NOW ALLOW IRQS
+	COMA 				;INVERT INPUT
+	ANDA 	#$1F			;MASK GARB
+	BSR	QMESG			;;(start checking sound ID)
+;;
 ;; 	In the original VSNDRM source code files, the interrupts have
 ;; 	labels that aren't very descriptive (such as IRQ000).
 ;; 	To better understand how the interrupts are processed,
@@ -388,19 +393,26 @@ IRQ		LDS		#ENDRAM			;RE-INITIALIZE STACK
 ;;
 ;; 	Some sound effect names have a "Q" in front.  These are symbols
 ;;	taken from the game logic source code.
+;;
 ;;---------------------------------------------------------------------
+;;
 ;; 	BGTEST 
-;; 	This is constantly checking if BGSNDFLAG is active
-;; 	If it's on, then go to the background drone routine, otherwise
-;; 	keep testing forever until an interrupt breaks the loop.
-;; 	When the current sound finishes, we go back to checking this flag.
-;;---------------------------------------------------------------------
+;; 	When no sound is playing, BGTEST is constantly
+;; 	testing to see if the BG1FLAG is on.  When the weird
+;; 	drone flag is enabled, this ensures that it continues 
+;; 	playing forever until an interrupt breaks the loop.
+;;	When the current sound finishes, we go back to checking this flag.
+;;
+;;	Sound trigger #4 must be called to mute this sound.
+;;
 BGTEST	TST 	BG1FLG			;;(Check if drone is on)
-		BEQ		BGTEST			;;(No? Check again!)
-		JMP 	DROSYN			;;(Yes? Go make some noise)
+	BEQ	BGTEST			;;(No? Check again!)
+	JMP 	DROSYN			;;(Yes? Go make some noise)
 ;;---------------------------------------------------------------------
 ;;
 ;;	SINISTAR SOUND SELECT
+;;
+;;	A = Sound ID
 ;;
 ;;	The sound effects are cued up by comparing A register's value.
 ;; 	If it's a bigger number, then we check for the next sound.
@@ -409,18 +421,17 @@ BGTEST	TST 	BG1FLG			;;(Check if drone is on)
 ;;
 ;;---------------------------------------------------------------------
 ;;
-;; 1) WARNING CUE
+;;  1) WARNING CUE
 ;;
 QMESG	CMPA	#$01			;;(what sound ID is this?)
-		BGT 	SINROAR			;;(if it's a bigger number, then check for the next sound)
-		JMP 	ORGASM			;;(otherwise, play the organ warning cue)
+	BGT 	SINROAR			;;(if it's a bigger number, then check for the next sound)
+	JMP 	ORGASM			;;(otherwise, play the organ warning cue)
 ;;---------------------------------------------------------------------
 ;;
-;;
-;; 2) SINISTAR ROAR
+;;  2) SINISTAR ROAR
 ;;
 SINROAR	CMPA	#$02			;;(check sound ID)
-		BGT 	QNEWSH			;;(bigger number? keep going down the line, buddy)
+	BGT 	QNEWSH			;;(bigger number? keep going down the line, buddy)
 ;;
 ;; 	Sinistar speech is handled outside of the sound rom.
 ;; 	Any jumps to $EFFD are speech calls that are then handled by code
@@ -429,7 +440,7 @@ SINROAR	CMPA	#$02			;;(check sound ID)
 ;; 	Amazingly, because VSNDRM1 is based off of Firepower's sound ROM,
 ;; 	Defender's sound code has the same speech routines Sinistar uses.
 ;;		
-;;  While writing the documentation here, I discovered a really awesome
+;;  	While writing the documentation here, I discovered a really awesome
 ;;	"easter egg"  that Mike Metz left in.  If you disconnect the speech
 ;; 	board, brand new sounds will play instead of Sinistar's taunts.
 ;;
@@ -437,164 +448,165 @@ SINROAR	CMPA	#$02			;;(check sound ID)
 ;;	error sound plays instead (ERROR).
 ;;
 ;;	However, if no opcode is found during Sinistar's roar, a new
-;;  LOUD Walsh Function sound plays that tries to emulate the
+;;  	LOUD Walsh Function sound plays that tries to emulate the
 ;;	scary scream (ERROAR).  I wonder if this feature was added so that
 ;;	the game can still work without the speech board.
 ;;
 *
 * CHECK FOR PRESENCE OF TALKING PROGRAM
 *
-		LDAB    TALK            ;CHECK FOR PROGRAM TO BE THERE
-        CMPB    #$7E            ;IS IT?
-        BNE     ERROAR          ;NO, SKIP THE TALKING
-		LDAA	#$09			;;(load roar speech phrase)
-        JMP     TALK            ;GO PLAY OUT 1 PHRASE 
+	LDAB    TALK            	;CHECK FOR PROGRAM TO BE THERE
+        CMPB    #$7E            	;IS IT?
+        BNE     ERROAR          	;NO, SKIP THE TALKING
+	LDAA	#$09			;;(load roar speech phrase)
+        JMP     TALK            	;GO PLAY OUT 1 PHRASE 
 ;;---------------------------------------------------------------------
 ;;
-;; 3) EXTRA SHIP
+;;  3) EXTRA SHIP / ERROR ROAR
 ;;
 QNEWSH	CMPA	#$03			;;(check sound ID)
-		BGT		BGMUTE			;;(if not, keep going)
+	BGT	BGMUTE			;;(if not, keep going)
 ;;
 ;;	The Walsh Function sound machine is normally only used for
-;;  the Extra Ship sound.  But if the speech board is disconnected,
+;;  	the Extra Ship sound.  But if the speech board is disconnected,
 ;;	then ERROAR is called whenever the Sinistar roars.  Both QNEWSH
-;;  and ERROAR use the A register as the Walsh Table offset.
+;;  	and ERROAR use the A register as the Walsh Table offset.
 ;;
 ;;	After subtracting by 2, if A = 0 then play ERROAR.
 ;;	If A = 1, play QNEWSH.
 ;;
-;;  In the cockpit-exclusive Video Sound ROM 10, the Walsh synth is
+;; 	In the cockpit-exclusive Video Sound ROM 10, the Walsh synth is
 ;;	muted by replacing the SUBA and JMP instructions with an RTS.
 ;; 
 ERROAR	IFNDEF	STEREO
-		SUBA 	#$02			;;(suba to get WALSHT offset)
-		JMP		WALSH			;;(go to Walsh synth)
-		ELSE
-		RTS
-		ENDIF
+	SUBA 	#$02			;;(suba to get WALSHT offset)
+	JMP	WALSH			;;(go to Walsh synth)
+	ELSE
+	RTS
+	ENDIF
 ;;---------------------------------------------------------------------
 ;;
-;; 4) SHUT UP UNUSED DRONE
+;;  4) SHUT UP UNUSED DRONE
 ;;
 BGMUTE	CMPA	#$04
-		BGT		DRONE			
-		CLR		BG1FLG
-		RTS
+	BGT	DRONE			
+	CLR	BG1FLG
+	RTS
 ;;---------------------------------------------------------------------
 ;;
-;; 5) UNUSED DRONE
+;;  5) UNUSED DRONE
 ;;
 DRONE	CMPA	#$05			;;(check sound ID)
-		BGT		HUNCOW			
-		JMP		DRONELD	
+	BGT	HUNCOW			
+	JMP	DRONELD	
 ;;---------------------------------------------------------------------
 ;;
-;; 6) "I HUNGER COWARD"
+;;  6) "I HUNGER COWARD"
 ;;		
 HUNCOW	CMPA	#$06
-		BGT		IMPACT			
-		LDAB    TALK
+	BGT	IMPACT			
+	LDAB    TALK
         CMPB    #$7E 
-		BEQ		HANGRY		
-		JMP		ERROR			
+	BEQ	HANGRY		
+	JMP	ERROR			
 HANGRY	LDAA	#$08
         JMP     TALK 
 ;;---------------------------------------------------------------------
 ;;
-;; 7) IMPACT (QPLDIE)
+;;  7) IMPACT (QPLDIE)
 ;;
 IMPACT	CMPA	#$07		
-		BGT		XPLODE			
-		JMP		$FB1D
+	BGT	XPLODE			
+	JMP	$FB1D
 ;;---------------------------------------------------------------------
 ;;
-;; 8) PLAYER EXPLOSION (QPLDIE)
+;;  8) PLAYER EXPLOSION (QPLDIE)
 ;;		
 XPLODE	CMPA	#$08
-		BGT		NOISE			
-		JMP		$FB2A	
+	BGT	NOISE			
+	JMP	$FB2A	
 ;;---------------------------------------------------------------------
 ;;
-;; 9 & 10) TWO UNUSED NOISE EFFECTS
+;;  9 & 10) TWO UNUSED NOISE EFFECTS
 ;;		
 NOISE	CMPA	#$0A
-		BGT		RUNCOW			
-		SUBA	#$09
-		JMP		NOISELD			
+	BGT	RUNCOW			
+	SUBA	#$09
+	JMP	NOISELD			
 ;;---------------------------------------------------------------------
 ;;
-;; 11) "RUN COWARD"
+;;  11) "RUN COWARD"
 ;;	
 RUNCOW	CMPA	#$0B
-		BGT		QBANG			
- 		LDAB    TALK
+	BGT	QBANG			
+ 	LDAB    TALK
         CMPB    #$7E
-		BNE		ERROR			
-		LDAA	#$06
- 		JMP   	TALK
+	BNE	ERROR			
+	LDAA	#$06
+ 	JMP   	TALK
 ;;---------------------------------------------------------------------
 ;;
-;; 12) BANG (Explosion used for Enemies and Planetoids)
+;;  12) BANG (Explosion used for Enemies and Planetoids)
 ;;
 QBANG	CMPA	#$0C
-		BGT		IAMSINI			
-		JMP		$FB10		
+	BGT	IAMSINI			
+	JMP	$FB10		
 ;;---------------------------------------------------------------------
 ;;
-;; 13) "I AM SINISTAR"
+;;  13) "I AM SINISTAR"
 ;;		
 IAMSINI	CMPA	#$0D
-		BGT		BEWARE			
- 		LDAB    TALK
+	BGT	BEWARE			
+ 	LDAB    TALK
         CMPB    #$7E
-		BNE		ERROR			
-		LDAA	#$02
- 		JMP   	TALK
+	BNE	ERROR			
+	LDAA	#$02
+ 	JMP   	TALK
 ;;---------------------------------------------------------------------
 ;;
-;; 14) "BEWARE I LIVE"
+;;  14) "BEWARE I LIVE"
 ;;
 BEWARE	CMPA	#$0E
-		BGT HUNGER			
- 		LDAB    TALK
+	BGT 	HUNGER			
+ 	LDAB    TALK
         CMPB    #$7E
-		BNE		ERROR		
-		LDAA	#$03
- 		JMP     TALK
+	BNE	ERROR		
+	LDAA	#$03
+ 	JMP     TALK
 ;;---------------------------------------------------------------------
 ;;
-;; 15) "I HUNGER"
+;;  15) "I HUNGER"
 ;;
 HUNGER	CMPA	#$0F
-		BGT		COWARE			
- 		LDAB    TALK
+	BGT	COWARE			
+ 	LDAB    TALK
         CMPB    #$7E
-		BNE		ERROR			
-		LDAA	#$04
- 		JMP     TALK
+	BNE	ERROR			
+	LDAA	#$04
+ 	JMP     TALK
 ;;---------------------------------------------------------------------
 ;;
-;; 19) "BEWARE COWARD"
+;;  19) "BEWARE COWARD"
 ;;
 COWARE	CMPA	#$13			
-		BNE 	GWAVSFX	
- 		LDAB    TALK
+	BNE 	GWAVSFX	
+ 	LDAB    TALK
         CMPB    #$7E
-		BNE		ERROR		
-		LDAA	#$05
- 		JMP     TALK
-;;---------------------------------------------------------------------
-;;;
-;;;Three new instructions were inserted into the rear panel cockpit sound ROM
-		IFDEF	STEREO
-		LDX		#$10FF
-DELAY	DEX
-		BNE		DELAY
-		ENDIF
+	BNE	ERROR		
+	LDAA	#$05
+ 	JMP     TALK
 ;;---------------------------------------------------------------------
 ;;
-;;	16-18, 20-28) GWAVE SOUND EFFECTS
+;;  STEREO SEPARATION DELAY (FOR VSNDRM10 ONLY)
+;;
+	IFDEF	STEREO
+	LDX	#$10FF
+DELAY	DEX
+	BNE	DELAY
+	ENDIF
+;;---------------------------------------------------------------------
+;;
+;;  16-18, 20-28) GWAVE SOUND EFFECTS
 ;;
 GWAVSFX	CMPA	#$1C			
 		BGT 	RUNRUN		
@@ -603,7 +615,7 @@ PLAYSFX JSR		$F7DA
 		JMP		$F840	
 ;;---------------------------------------------------------------------
 ;;
-;; 29) "RUN RUN RUN"
+;;  29) "RUN RUN RUN"
 ;;		
 RUNRUN	CMPA	#$1D
 		BGT 	SHUTUP		
@@ -614,7 +626,7 @@ RUNRUN	CMPA	#$1D
  		JMP    	TALK
 ;;---------------------------------------------------------------------
 ;;
-;; 31) SHUT UP SINISTAR
+;;  31) SHUT UP SINISTAR
 ;;	
 SHUTUP 	RTS 
 ;;---------------------------------------------------------------------
