@@ -1098,7 +1098,6 @@ DROB22	DECB
 	CMPA	SOUND
 	BNE	DROLP2
 	BRA	DROLP1
-GFRTAB	EQU	$FA24
 TRANS	EQU	$FA9A
 ;;---------------------------------------------------------------------
 *
@@ -1299,7 +1298,19 @@ VVECT	EQU	*
 ;;
 ;;  GWAVE WAVEFORM TABLE (GWVTAB)
 ;;
-;;	
+;;	GWAVE is a a wavetable synthesizer routine written in 1979 by
+;;	Eugene Jarvis.  This is arguably the most famous synth heard
+;;	in these games, responsible for many popular noises.  It relies
+;;	on three different tables to output sound:
+;;
+;;	GWAVTAB (wave table)
+;;	SVTAB (preset parameters)
+;;	GFRTAB (frequency table)
+;;
+;;	The wave table features several different shapes to produce
+;;	different timbres.  The waveform sizes range from as little as
+;;	7 bytes, all the way to 72 bytes.  The bigger the size,
+;;	the lower the pitch will be.
 ;;
 *
 *WAVE TABLE
@@ -1335,6 +1346,7 @@ GSQ22	FCB	16
 	FCB	$FF,$FF,$FF,$FF,0,0,0,0
 ;;
 ;; (72-BYTE SINE WAVE)
+;; (NOT USED IN-GAME - WAVEFORM USED BY "LANDER FIRE" aka DP1V)
 GS72	FCB	72
 	FCB	138,149,160,171,181,191,200,209
 	FCB	218,225,232,238,243,247,251,253,254,255
@@ -1346,7 +1358,8 @@ GS72	FCB	72
 	FCB	95,106,117,127
 ;;
 ;; NEW WAVEFORM #6 (RANDOM JAGGED SQUARE WAVE)
-;; (ONLY USED BY PLAYER FIRE)
+;; (USED ONLY BY "PLAYER FIRE")
+;; (replaces GS1.7 - SINE WAVE AT .7 AMPLITUDE)
 	FCB	12
 	FCB	0,80,96,176,32,32,240,144 
 	FCB	128,192,80,112
@@ -1356,8 +1369,8 @@ GS72	FCB	72
 	FCB	64,9,53,12,41,15,32
 ;;---------------------------------------------------------------------
 ;;
-;;  GWAVE "PRESET" PARAMETERS
-;;  aka SOUND VECTOR TABLE (SVTAB)
+;;   GWAVE "PRESET" PARAMETERS
+;;   aka SOUND VECTOR TABLE (SVTAB)
 ;;	
 ;;	BYTE 0: ECHO COUNT, PLAYS PER PERIOD
 ;;	BYTE 1: ECHO DECAY AMOUNT, WAVEFORM #
@@ -1368,10 +1381,29 @@ GS72	FCB	72
 ;;	BYTE 6: FREQ PATTERN OFFSET (starts at GFRTAB)
 ;;
 ;;	ECHO repeats the frequency pattern, while ECHO DECAY reduces
-;;	the volume on every consecutive echo.  
+;;	the volume on every consecutive echo.  Large echo delay values
+;;	introduce wrap-around, perfect for glitchy noises.
 ;;
-;;	PLAYS PER PERIOD acts almost like a tempo control by stretching
-;;	out the waveform.
+;;	PLAYS PER PERIOD acts almost like a tempo control by repeating
+;;	waveform periods, making the sound play longer without changing
+;;	the pitch.
+;;
+;;	WAVEFORM #
+;;	Pick between 0-7.  VSNDRM9 introduces three new waveforms that
+;;	replace two older ones (GS12 and GS1.7) used in all
+;;	previous Video Sound Rom source files.
+;;	
+;;	INITIAL DECAY AMOUNT
+;;	Reduces the volume at the beginning of the sound.  Can be
+;;	useful as a main volume control.  Combined with echo delay,
+;;	this parameter can output interesting wrap-around results!
+;;
+;;	BASE PERIOD CHANGE
+;;	Use this to change the pitch on every repeat.
+;;	
+;;	FREQ PATTERN LENGTH
+;;	The longer the length, the longer the duration will be.
+;;	
 ;;
 ;;	START CUE
 ;;	Mike Metz either created this sound with corruption or by
@@ -1385,8 +1417,8 @@ GS72	FCB	72
 ;;	183($B7), however only 2 repeats are heard in-game.  This means
 ;;	that if the sound plays uninterrupted, it will repeat 183 times!
 ;;	Base period change aka "GDFINC" is 19($13), so it will decrease
-;;	the pitch with every repeat.  This causes the full duration
-;;	of the sound to be almost 11 minutes!!
+;;	the pitch and speed with every repeat.  This causes the full
+;;	duration of the sound to be almost 11 minutes!!
 ;;
 *
 *GWAVE SOUND VECTOR TABLE
@@ -1401,15 +1433,15 @@ GS72	FCB	72
 *
 SVTAB	EQU	*
 UNUSED0	FCB	$71,$23,$09,$00,$00,$1E,$00	;;UNUSED SOUND (UNUSED WARNING?)
-ERRORV	FCB	$74,$00,$09,$00,$00,$1A,$1E	;;SINISTAR ERROR
-BBSV	FCB	$74,$12,$09,$00,$00,$0A,$38	;;AF = SINI-BOMB
+ERRORV	FCB	$74,$00,$09,$00,$00,$1A,$1E	;;SINISTAR SPEECH ERROR
+BBSV	FCB	$74,$12,$09,$00,$00,$0A,$38	;;AF = SINI-BOMB ("Big Ben" Bell Sound)
 PFIREV	FCB	$11,$06,$06,$02,$20,$03,$42	;;AE = PLAYER FIRE
 EFIREV	FCB	$11,$04,$0B,$01,$20,$04,$42	;;AD = ENEMY FIRE
-UNUSED1	FCB	$12,$03,$09,$00,$00,$04,$46	;;UNUSED BOUNCE SOUND EFFECT
+UNUSED1	FCB	$12,$03,$09,$00,$00,$04,$46	;;UNUSED BOUNCE SOUND EFFECT (only difference is offset)
 BOUNCV	FCB	$12,$03,$09,$00,$00,$04,$4A	;;AB = BOUNCE
 ECRYSV	FCB	$16,$00,$09,$00,$00,$16,$4E	;;AA = ENEMY CRYSTAL PICKUP
-DP1V	FCB	$11,$05,$11,$01,$0F,$01,$38	;;A9 = UNUSED LANDER FIRE (FOUND IN VSNDRM1)
-ED17	FCB	$1F,$12,$09,$FF,$05,$04,$64	;;A8 = CRYSTAL BOMB-BAY FULL
+DP1V	FCB	$11,$05,$11,$01,$0F,$01,$38	;;A9 = UNUSED LANDER FIRE (FOUND IN DEFENDER'S VSNDRM1)
+ED17	FCB	$1F,$12,$09,$FF,$05,$04,$64	;;A8 = CRYSTAL BOMB-BAY FULL (ED'S SOUND 17)
 CRYSFV	FCB	$F1,$07,$09,$00,$00,$0E,$68	;;A7 = CRYSTAL FLASHING
 CLANGV	FCB	$68,$20,$00,$02,$26,$03,$04	;;A6 = GAME OVER CUE / SINISTAR PIECE ADDED
 BLASTV	FCB	$08,$47,$0B,$40,$01,$02,$03	;;A5 = UNUSED BLASTER "ENERGY CRITICAL" ALARM
