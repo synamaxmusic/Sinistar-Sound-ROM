@@ -658,8 +658,9 @@ DELAY	DEX
 ;; 	soundcpu.rb@f18a = 02 (A3 = PLAYER CRYSTAL PICKUP)
 ;;
 ;; 	There is a glitch in MAME's debugger that prevents $0B
-;; 	from showing up in RAM so you would have to manually
-;; 	edit the ROM to hear that sound.
+;; 	from showing up in RAM.  Another way play these sounds is to
+;;	set up a breakpoint at $F7E5, then type in :
+;;	do x = [SVTAB address]
 ;;
 GWAVSFX	CMPA	#$1C			
 	BGT 	RUNRUN		
