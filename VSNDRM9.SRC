@@ -123,9 +123,9 @@ WVELEN	EQU	72
 BG1FLG	EQU	$04
 NIN	EQU	5
 FIF	EQU	6
-TACC    EQU    	4               ;TACCATA TEMPO CONSTANT
-PHANC   EQU    	3               ;PHANTOM TEMPO CONTANT
-TAF     EQU    	34715>>1        ;NOTE TIMES			;;43CD
+TACC    EQU    	4               	;TACCATA TEMPO CONSTANT
+PHANC   EQU    	3               	;PHANTOM TEMPO CONTANT
+TAF     EQU    	34715>>1        	;NOTE TIMES		;;43CD
 TA      EQU    	36780>>1
 TBF     EQU    	38967>>1
 TB      EQU    	41284>>1
@@ -138,72 +138,72 @@ TF      EQU    	58385>>1
 TFS     EQU    	61857>>1
 TG      EQU    	65535>>1
 ;;	Added Constants
-RAM		SET		$0000
-WRAM	SET		$0000
+RAM	SET	$0000
+WRAM	SET	$0000
 *
 *
 * TALKING EQUATES
 *
-TALK    EQU    	$EFFD           ;ENTRY TO TALKING
-TALKD   EQU   	$EFFA           ;ENTRY FOR DIAGNOSTICS
+TALK    EQU    	$EFFD			;ENTRY TO TALKING
+TALKD   EQU   	$EFFA           	;ENTRY FOR DIAGNOSTICS
 *
 *
 *GLOBALS
 *
 ;;
-;; (A dummy global was added for padding.)
+;; 	(A dummy global was added for padding.)
 ;;
-		ORG		RAM
+	ORG	RAM
 ;;
-DUMMY 	RMB 	1				;;(to help align ram)	
+DUMMY 	RMB 	1			;;(to help align ram)	
 ;;
-HI		RMB		1				;RANDOM SEED 
-LO		RMB		1				;RANDOM SEED
-XDECAY	RMB		2										;;($03)
-AMP0	RMB		1										;;($05)		
+HI	RMB	1			;RANDOM SEED 
+LO	RMB	1			;RANDOM SEED
+XDECAY	RMB	2						;;($03)
+AMP0	RMB	1						;;($05)		
 *
 *
 *TEMPORARIES
 *
 ;;
-;; (TMPRAM originally had *, but vasm doesn't like this
-;; so $0006 was used instead.)
+;;	(TMPRAM originally had *, but vasm doesn't like this
+;;	so $0006 was used instead.)
 ;;
-TMPRAM	EQU		$0006			;TEMPORARY RAM
-TEMPX	RMB		2				;X TEMPS
-XPLAY	RMB		2										;;($08)
-XPTR	RMB		2										;;($0A)
-TEMPA	RMB		1				;ACCA TEMP
-TEMPB	RMB		1										;;($0D)
+TMPRAM	EQU	$0006			;TEMPORARY RAM
+TEMPX	RMB	2			;X TEMPS
+XPLAY	RMB	2						;;($08)
+XPTR	RMB	2						;;($0A)
+TEMPA	RMB	1			;ACCA TEMP		;;($0C)
+TEMPB	RMB	1						;;($0D)
 ;;
-;; (LOCRAM originally had *, but vasm doesn't like this
-;; so $000E was used instead.)
+;;	(LOCRAM originally had *, but vasm doesn't like this
+;;	so $000E was used instead.)
 ;;
 LOCRAM	EQU	$000E					
 *
 *GWAVE PARAMETERS
 *
-		ORG		LOCRAM
-GECHO	RMB		1				;ECHO FLAG				;;($0E)
-GCCNT	RMB		1				;CYCLE COUNT			;;($0F)
-GECDEC	RMB		1				;# OF DECAYS PER ECHO	;;$10
-GDFINC	RMB		1				;DELTA FREQ INC			;;$11
-GDCNT	RMB		1				;DELTA FREQ COUNT 		;;$12
-GWFRM	RMB		2				;WAVEFORM ADDRESS		;;$13
+	ORG	LOCRAM
+GECHO	RMB	1			;ECHO FLAG		;;($0E)
+GCCNT	RMB	1			;CYCLE COUNT		;;($0F)
+GECDEC	RMB	1			;# OF DECAYS PER ECHO	;;($10)
+GDFINC	RMB	1			;DELTA FREQ INC		;;($11)
+GDCNT	RMB	1			;DELTA FREQ COUNT 	;;($12)
+GWFRM	RMB	2			;WAVEFORM ADDRESS	;;($13)
 *TEMPORARY OR COMPUTED PARAMETERS
-PRDECA	RMB		1				;PRE-DECAY FACTOR		;;$15
-GWFRQ	RMB		2				;FREQ TABLE ADDR		;;$16
-FRQEND	RMB		2				;END ADDR FREQ TABLE	;;$18
-WVEND	RMB		2				;WAVE END ADDR			;;$1A
-GPER	RMB		1				;PERIOD					;;$1C
-GECNT	RMB		1				;# OF ECHOES COUNTER	;;$1D
-FOFSET	RMB		1				;FREQUENCY OFFSET		;;$1E
+PRDECA	RMB	1			;PRE-DECAY FACTOR	;;($15)
+GWFRQ	RMB	2			;FREQ TABLE ADDR	;;($16)
+FRQEND	RMB	2			;END ADDR FREQ TABLE	;;($18)
+WVEND	RMB	2			;WAVE END ADDR		;;($1A)
+GPER	RMB	1			;PERIOD			;;($1C)
+GECNT	RMB	1			;# OF ECHOES COUNTER	;;($1D)
+FOFSET	RMB	1			;FREQUENCY OFFSET	;;($1E)
 *
-DUMMY2	RMB		1				;;???
+DUMMY2	RMB	1			;;???
 *
 *GWAVE TABLES
 *
-GWTAB	RMB	WVELEN				;WAVE TABLE	;;$20
+GWTAB	RMB	WVELEN			;WAVE TABLE		;;($20)
 *
 *
 *ORGAN PARAMETERS
@@ -213,164 +213,163 @@ GWTAB	RMB	WVELEN				;WAVE TABLE	;;$20
 ;;	so RORG LOCRAM and REND was used to fix this.) 
 ;;
         RORG   	LOCRAM
-ORGFLG	RMB	   	1										;;$0E
-DUR     RMB    	2               ;NOTE DURATION			;;$0F
-OSCIL   RMB    	1               ;OSCILLATORS			;;$11
-RDELAY  RMB    	60              ;RAM DELAY LOAD			;;$12
+ORGFLG	RMB	1						;;($0E)
+DUR     RMB    	2               	;NOTE DURATION		;;($0F)
+OSCIL   RMB    	1               	;OSCILLATORS		;;($11)
+RDELAY  RMB    	60              	;RAM DELAY LOAD		;;($12)
         REND
 *
 *
 *
 *NOISE/CROWD ROAR ROUTINE PARAMETERS
 *
-		RORG	LOCRAM
-DECAY	RMB		1										;;($0E)
-NAMP	RMB		1										;;($0F)
-CYCNT	RMB		1										;;($10)
-NFRQ1	RMB		2										;;($11)
-NFFLG	RMB		1										;;($13)
-LFREQ	RMB		1										;;($14)
-DFREQ	RMB		1										;;($15)
-GALPAM	EQU		*
-CYCNT2	RMB		1
-NAMP2	RMB		1
-DECAY2	RMB		1
-NFFLG2	RMB		1
-NFR2	RMB		1
-GALCNT	RMB		1
-WHIS	RMB		1				;CROWD ROAR AMP
-WFRQ	RMB		1				;CROWD WHISTLE FREQ
-WCNT	RMB		1				;WHISTLE PASSCOUNTER
-PTRHI	RMB		2				;WHIS ADR PTR
-WFRQ2	RMB		1
-WCNT2	RMB		1
-CURVAL	RMB		1				;WHISTLING NOISE OUTPUT
-ATP		RMB		1				;INTERM NOISE VAL
-MINWIS	RMB		1				;MIN WHISTLE FREQ
-CY2		RMB		1				;NOISE CYCLE COUNTER
-DFRQ	RMB		1				;WHISTLE FREQ CHANGE
-DFRQ2	RMB		1				;INIT WHISTLE FREQ CHANGE
-NNOIS	RMB		1				;NEXT NOISE VALUE
-NFRQ	RMB		1				;NOISE FREQ
-NFRQ2	RMB		1				;INIT NOISE FREQ
-RCNT2	RMB		1
+	RORG	LOCRAM
+DECAY	RMB	1										;;($0E)
+NAMP	RMB	1										;;($0F)
+CYCNT	RMB	1										;;($10)
+NFRQ1	RMB	2										;;($11)
+NFFLG	RMB	1										;;($13)
+LFREQ	RMB	1										;;($14)
+DFREQ	RMB	1										;;($15)
+GALPAM	EQU	*
+CYCNT2	RMB	1
+NAMP2	RMB	1
+DECAY2	RMB	1
+NFFLG2	RMB	1
+NFR2	RMB	1
+GALCNT	RMB	1
+WHIS	RMB	1				;CROWD ROAR AMP
+WFRQ	RMB	1				;CROWD WHISTLE FREQ
+WCNT	RMB	1				;WHISTLE PASSCOUNTER
+PTRHI	RMB	2				;WHIS ADR PTR
+WFRQ2	RMB	1
+WCNT2	RMB	1
+CURVAL	RMB	1				;WHISTLING NOISE OUTPUT
+ATP	RMB	1				;INTERM NOISE VAL
+MINWIS	RMB	1				;MIN WHISTLE FREQ
+CY2	RMB	1				;NOISE CYCLE COUNTER
+DFRQ	RMB	1				;WHISTLE FREQ CHANGE
+DFRQ2	RMB	1				;INIT WHISTLE FREQ CHANGE
+NNOIS	RMB	1				;NEXT NOISE VALUE
+NFRQ	RMB	1				;NOISE FREQ
+NFRQ2	RMB	1				;INIT NOISE FREQ
+RCNT2	RMB	1
 		REND
-		
 *
 *
 * MAIN PROGRAM
 *
-		ORG		ROM
-		FCB		$AA				;CHECKSUM BYTE
+	ORG	ROM
+	FCB	$AA				;CHECKSUM BYTE
 *	
 *
-SETUP	SEI						;SET INTERRUPT MASK
-		LDS		#ENDRAM			;INITIALIZE STACK POINTER
-		LDX		#SOUND			;INDEX TO PIA
-		CLR		1,X				;ACCESS DDRA
-		CLR		3,X				;ACCESS DDRB
-		LDAA	#$FF			;PA0-PA7
-		STAA	0,X				;SET SIDE A AS OUTPUTS
-		LDAB	#ENDRAM+1		;;(new instruction) (used for clearing RAM)
-		STAB	2,X				;;(only found in Sinistar/Bubbles) (Joust has CLR	2,X)
-		LDAA	#$37			;CB2 LOW, IRQ ALLOWED
-		STAA	3,X				;PROGRAM B CONTROL REG
-		LDAA	#$3C			;CA2 SET INIT HIGH, NO IRQS
-		STAA	1,X				;PROGRAM A SIDE
-		STAB	2,X				;;(new instruction) (store in port B PIA1)
-		LDX		#ENDRAM
+SETUP	SEI					;SET INTERRUPT MASK
+	LDS	#ENDRAM				;INITIALIZE STACK POINTER
+	LDX	#SOUND				;INDEX TO PIA
+	CLR	1,X				;ACCESS DDRA
+	CLR	3,X				;ACCESS DDRB
+	LDAA	#$FF				;PA0-PA7
+	STAA	0,X				;SET SIDE A AS OUTPUTS
+	LDAB	#ENDRAM+1			;;(new instruction) (used for clearing RAM)
+	STAB	2,X				;;(only found in Sinistar/Bubbles) (Joust has CLR 2,X)
+	LDAA	#$37				;CB2 LOW, IRQ ALLOWED
+	STAA	3,X				;PROGRAM B CONTROL REG
+	LDAA	#$3C				;CA2 SET INIT HIGH, NO IRQS
+	STAA	1,X				;PROGRAM A SIDE
+	STAB	2,X				;;(new instruction) (store in port B PIA1)
+	LDX	#ENDRAM
 RAMCLR	CLR 0,X					;;(wipe out the RAM)
-		DEX
-		BNE		RAMCLR			;;(are we done yet?)
-		LDAA	#$3C			;;(grab number for the random generator)	
-		STAA	HI				;START RANDOM GENERATOR
-		CLI						;CLEAR INTERRUPTS
-		BRA	*					;WAIT FOR INTERRUPT
+	DEX
+	BNE	RAMCLR				;;(are we done yet?)
+	LDAA	#$3C				;;(grab number for the random generator)	
+	STAA	HI				;START RANDOM GENERATOR
+	CLI					;CLEAR INTERRUPTS
+	BRA	*				;WAIT FOR INTERRUPT
 ;;
 ORGASM	CLR 	ORGFLG
-		STAA	TEMPA			;TUNE NUMBER
-		PSHA					;;(this is a new instruction)
-		LDX		#ORGTAB
+	STAA	TEMPA				;TUNE NUMBER
+	PSHA					;;(this is a new instruction)
+	LDX	#ORGTAB
 ORGNT2	LDAA	0,X				;TUNE TABLE LENGTH
-		BEQ		ORGNT5			;INVALID TUNE
-		DEC 	TEMPA
-		BEQ		ORGNT3
-		INCA
-		JSR		ADDX
-		BRA		ORGNT2
+	BEQ	ORGNT5				;INVALID TUNE
+	DEC 	TEMPA
+	BEQ	ORGNT3
+	INCA
+	JSR	ADDX
+	BRA	ORGNT2
 ORGNT3	INX
-		STX		XPTR			;NOTE POINTER
-		JSR		ADDX
-		STX		XPLAY			;TUNE END
-		LDX		XPTR
+	STX	XPTR				;NOTE POINTER
+	JSR	ADDX
+	STX	XPLAY				;TUNE END
+	LDX	XPTR
 ORGNT4	LDAA	0,X				;TUNE LOOP
-		STAA 	OSCIL			
-		LDAA	1,X
-		LDX		2,X
-		STX		DUR				
-		BSR		ORGANL
-		LDX		XPTR
-		INX
-		INX
-		INX
-		INX 
-		STX		XPTR
-		CPX		XPLAY
-		BNE		ORGNT4
+	STAA 	OSCIL			
+	LDAA	1,X
+	LDX	2,X
+	STX	DUR				
+	BSR	ORGANL
+	LDX	XPTR
+	INX
+	INX
+	INX
+	INX 
+	STX	XPTR
+	CPX	XPLAY
+	BNE	ORGNT4
 ORGNT5	PULA					;;(In VSNDRM3, this is just an RTS)
-		BRA		BGTEST
-ORGANL  LDX		#RDELAY
-LDLP	CMPA	#0								;;		SUBA	#2
-		BEQ 	LD1								;;LDLP	BLS	LD1
-		CMPA	#3
-		BEQ		LD2
-		LDAB	#1				;NOP
-		STAB	0,X
-		INX
-		SUBA	#2
-		BRA		LDLP
-LD2		LDAB	#$91			;CMPA 0
-		STAB	0,X
-		CLR	1,X
-		INX
-		INX
-LD1		LDAB	#$7E			;JMP START2
-		STAB	0,X
-		LDAB   	#ORGAN1>>8 		;;(original was: LDAB	#ORGAN1!>8 		;MSB)		
-		STAB	1,X
-		LDAB  	#ORGAN1&$FF		;;(original was: LDAB	#ORGAN1!.$FF 	;LSB)
-		STAB	2,X
-ORGAN	LDX		DUR
+	BRA	BGTEST
+ORGANL  LDX	#RDELAY				;;(There's some changes here from VSNDRM3)
+LDLP	CMPA	#0				;;(original was:        SUBA	#2)
+	BEQ 	LD1				;;(original was: LDLP	BLS	LD1)
+	CMPA	#3
+	BEQ	LD2
+	LDAB	#1				;NOP
+	STAB	0,X
+	INX
+	SUBA	#2
+	BRA	LDLP
+LD2	LDAB	#$91				;CMPA 0
+	STAB	0,X
+	CLR	1,X
+	INX
+	INX
+LD1	LDAB	#$7E				;JMP START2
+	STAB	0,X
+	LDAB   	#ORGAN1>>8 			;;(original was: LDAB #ORGAN1!>8    ;MSB)		
+	STAB	1,X
+	LDAB  	#ORGAN1&$FF			;;(original was: LDAB #ORGAN1!.$FF  ;LSB)
+	STAB	2,X
+ORGAN	LDX	DUR
 ORGAN1	CLRA 
-		FCB		$F6				;LOAD B EXTND TEMPB
-		FDB		TEMPB	
-		INCB	
-		STAB	TEMPB
-		ANDB	OSCIL			;MASK OSCILLATORS
-		LSRB
-		ADCA	#0
-		LSRB
-		ADCA	#0
-		LSRB
-		ADCA	#0
-		LSRB
-		ADCA	#0
-		LSRB
-		ADCA	#0	
-		LSRB
-		ADCA	#0
-		LSRB
-		ADCA	#0	
+	FCB	$F6				;LOAD B EXTND TEMPB
+	FDB	TEMPB	
+	INCB	
+	STAB	TEMPB
+	ANDB	OSCIL				;MASK OSCILLATORS
+	LSRB
+	ADCA	#0
+	LSRB
+	ADCA	#0
+	LSRB
+	ADCA	#0
+	LSRB
+	ADCA	#0
+	LSRB
+	ADCA	#0	
+	LSRB
+	ADCA	#0
+	LSRB
+	ADCA	#0	
 ;; (Robotron's VSNDRM3 has an ABA opcode here)	
-		ASLA
-		ASLA
-		ASLA
-		ASLA		
-		ASLA
-		STAA	SOUND	
-		DEX	
-		BEQ		ORGAN2			;NOTE OVER?
-		JMP		RDELAY	
+	ASLA
+	ASLA
+	ASLA
+	ASLA		
+	ASLA
+	STAA	SOUND	
+	DEX	
+	BEQ	ORGAN2				;NOTE OVER?
+	JMP	RDELAY	
 ORGAN2	RTS  
 *
 * INTERRUPT PROCESSING
