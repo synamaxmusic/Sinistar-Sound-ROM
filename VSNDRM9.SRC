@@ -1288,7 +1288,6 @@ WVDLP1	SBA				;DECAY
 	CPX	WVEND			;END OF WAVE?
 	BNE	WVDLP			;NO
 WVDCX	RTS
-	END
 *
 *VARI VECTORS
 *
@@ -1300,3 +1299,43 @@ VVECT	EQU	*
 *1ST BYTE= WAVELENGTH
 *
 GWVTAB	EQU	*
+GS2	FCB	8
+	FCB	127,217,255,217,127,36,0,36
+	END
+;GSSQ2	FCB	8,0,64,128,0,255,0,128,64
+F915  : 08                             ;GSSQR2
+F916  : 00 40 80 00 FF 00 80 40        ;
+;GS1	FCB	16,127,176,217,245,255,245,217,176
+;		FCB	127,78,36,9,0,9,36,78
+F91E  : 10                             ;GS1
+F91F  : 7F B0 D9 F5 FF F5 D9 B0        ;
+F927  : 7F 4E 24 09 00 09 24 4E        ;
+;;NEW WAVEFORM #3
+F92F  : 1C                             ;(28)
+F930  : 80 40 29 1B 10 09 06 04        ;
+F938  : 07 0C 12 1E 30 49 A4 C9        ;
+F940  : DF EB F6 FB FF FF FB F5        ;
+F948  : EA DD C7 9B                    ;
+;GSQ22
+F94C  : 10                             ;GSQ22
+F94D  : FF FF FF FF 00 00 00 00        ;
+F955  : FF FF FF FF 00 00 00 00        ;
+;GS72
+F95D  : 48                             ;GS72
+F95E  : 8A 95 A0 AB B5 BF C8 D1        ;
+F966  : DA E1 E8 EE F3 F7 FB FD        ;
+F96E  : FE FF FE FD FB F7 F3 EE        ;
+F976  : E8 E1 DA D1 C8 BF B5 AB        ;
+F97E  : A0 95 8A 7F 75 6A 5F 54        ;
+F986  : 4A 40 37 2E 25 1E 17 11        ;
+F98E  : 0C 08 04 02 01 00 01 02        ;
+F996  : 04 08 0C 11 17 1E 25 2E        ;
+F99E  : 37 40 4A 54 5F 6A 75 7F        ;
+;;NEW WAVEFORM #6
+F9A6  : 0C                             ;(12)
+F9A7  : 00 50 60 B0 20 20 F0 90        ;
+F9AF  : 80 C0 50 70                    ;
+;;NEW WAVEFORM #7
+F9B3  : 07                             ;(7)
+F9B4  : 40 09 35 0C 29 0F 20           ;
+	END
