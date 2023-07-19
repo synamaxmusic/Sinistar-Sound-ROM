@@ -20,7 +20,7 @@
 ;
 ;	Because one of the routines (the Walsh Function Sound Machine) uses
 ;	the same RAM area with other code sections, vasm stops with an
-;	error.  To get around this, the Walsh Function has been moved to
+;	error.  To get around this, the Walsh routine has been moved to
 ;	its own source file, SINWALSH.SRC
 ;
 ;	When VSNDRM9 is built, there will be padding starting at $F1DD and
@@ -29,7 +29,7 @@
 ;	After both VSNDRM9.SRC and SINWALSH.SRC have been built by vasm,
 ;	paste the SINWALSH binary data into VSNDRM9.bin at $F1DD.
 ;
-;	Even though the Walsh Function is not used in VSNDRM10, the code
+;	Even though the Walsh synth is not used in VSNDRM10, the code
 ;	still exists.  When building SINWALSH for VSNDRM10, you must also
 ;	define "STEREO EQU 1" in both source files, so that the binary
 ;	data stays aligned.
@@ -68,18 +68,28 @@
 ;	import your own GWAVE sounds including Sinistar's sfx; fun stuff!
 ;	http://zapspace.net/defender_sound/
 ;
-;	And last but not least, thanks to my spouse for their
+;	And last but not least, thanks to my loving spouse for their
 ;	patience and support during this project.
 ;
 ;;---------------------------------------------------------------------
 ;
-;	To build VSNDRM9, download vasm and run these command lines:
+;	To build VSNDRM9, you will need vasm, an assembler that
+;	supports old-style Motorola 6800 syntax.
+;	You download vasm here:
+;	http://www.compilers.de/vasm.html
+;
+;	Launch vasm in a command prompt and run the following:
 ;
 ;	vasm6800_oldstyle -ast -Fbin -o vsndrm9.bin vsndrm9.src
 ;
 ;	vasm6800_oldstyle -ast -Fbin -o sinwalsh.bin sinwalsh.src
 ;
-;	Then, paste the sinwalsh.bin data into vsndrm9.bin at $F1DD.
+;	This will build two binary files from the source code.  Once
+;	the code has been assembled, paste the sinwalsh.bin data into
+;	vsndrm9.bin at address $F1DD, overwriting all the zeros until
+;	$F686.  This will give you a complete rebuilt copy of
+;	Video Sound Rom 9.  The same process applies to building
+;	VSNDRM10.
 ;
 ;;---------------------------------------------------------------------
 ;
@@ -284,7 +294,9 @@ RAMCLR	CLR 0,X				;;(wipe out the RAM)
 	STAA	HI			;START RANDOM GENERATOR
 	CLI				;CLEAR INTERRUPTS
 	BRA	*			;WAIT FOR INTERRUPT
-;;
+*
+*ORGAN TUNE
+*
 ORGASM	CLR 	ORGFLG
 	STAA	TEMPA			;TUNE NUMBER
 	PSHA				;;(this is a new instruction)
@@ -317,6 +329,14 @@ ORGNT4	LDAA	0,X			;TUNE LOOP
 	BNE	ORGNT4
 ORGNT5	PULA				;;(In VSNDRM3, this is just an RTS)
 	BRA	BGTEST
+*
+*ORGAN NOTE
+*4 BYTES(MODE,OSCILLATOR MASK HI+1,LO+1,NOTE#)
+ORGANN	RTS					
+*
+*ORGAN LOADER
+*OSCIL=OSCILLATOR MASK, ACCA=DELAY, DUR=DURATION
+*
 ORGANL  LDX	#RDELAY			;;(There's some changes here from VSNDRM3)
 LDLP	CMPA	#0			;;(original was:        SUBA	#2)
 	BEQ 	LD1			;;(original was: LDLP	BLS	LD1)
@@ -338,6 +358,10 @@ LD1	LDAB	#$7E			;JMP START2
 	STAB	1,X
 	LDAB  	#ORGAN1&$FF		;;(original was: LDAB #ORGAN1!.$FF  ;LSB)
 	STAB	2,X
+*
+*ORGAN ROUTINE
+*DUR=DURATION, OSCILLATOR MASK
+*
 ORGAN	LDX	DUR
 ORGAN1	CLRA 
 	FCB	$F6			;LOAD B EXTND TEMPB
@@ -396,7 +420,7 @@ IRQ	LDS	#ENDRAM			;RE-INITIALIZE STACK
 ;;
 ;;---------------------------------------------------------------------
 ;;
-;; 	BGTEST 
+;; 	***BGTEST***
 ;; 	When no sound is playing, BGTEST is constantly
 ;; 	testing to see if the BG1FLAG is on.  When the weird
 ;; 	drone flag is enabled, this ensures that it continues 
@@ -410,7 +434,7 @@ BGTEST	TST 	BG1FLG			;;(Check if drone is on)
 	JMP 	DROSYN			;;(Yes? Go make some noise)
 ;;---------------------------------------------------------------------
 ;;
-;;	SINISTAR SOUND SELECT
+;;	***SINISTAR SOUND SELECT***
 ;;
 ;;	A = Sound ID
 ;;
@@ -659,7 +683,7 @@ DELAY	DEX
 ;;
 ;; 	There is a glitch in MAME's debugger that prevents $0B
 ;; 	from showing up in RAM.  Another way play these sounds is to
-;;	set up a breakpoint at $F7E5, then type in :
+;;	set up a breakpoint at $F7E5, then type in:
 ;;	do x = [SVTAB address]
 ;;
 GWAVSFX	CMPA	#$1C			
@@ -728,85 +752,109 @@ NMI1	ADCB	0,X
 					;;the checksum fails.)
 	BEQ	NMI2
 	WAI				;;(test failed, wait forever)
-NMI2	JSR	DIAGNOI			;;(play Diagnoistic Synth Noise?)
+NMI2	JSR	DIAGNOI			;;(play unused Diagnoistic Synth Noise)
 	BRA 	NMI			;;(loop forever)
+;;---------------------------------------------------------------------
 *
 * NOTE DEFINITIONS AND ALL THAT JAZZ
 *
-AF1		EQU		$F847
-A1		EQU		$F83F
-BF1		EQU		$F837
-B1		EQU		$F830
-C1		EQU		$F829
-CS1		EQU		$F823
-D1		EQU		$F81D
-EF1		EQU		$F817
-E1		EQU		$F812
-F1		EQU		$F80D
-FS1		EQU		$F808
-G2		EQU		$F804
-AF2		EQU		$7C47
-A2		EQU		$7C3F
-BF2		EQU		$7C37
-B2		EQU		$7C30
-C2		EQU		$7C29
-CS2		EQU		$7C23
-D2		EQU		$7C1D
-EF2		EQU		$7C17
-E2		EQU		$7C12
-F2		EQU		$7C0D
-FS2		EQU		$7C08
-G3		EQU		$7C04
-AF3		EQU		$3E47
-A3		EQU		$3E3F
-BF3		EQU		$3E37
-B3		EQU		$3E30
-C3		EQU		$3E29
-CS3		EQU		$3E23
-D3		EQU		$3E1D
-EF3		EQU		$3E17
-E3		EQU		$3E12
-F3		EQU		$3E0D
-FS3		EQU		$3E08
-G4		EQU		$3E04
-AF4		EQU		$1F47
-A4		EQU		$1F3F
-BF4		EQU		$1F37
-B4		EQU		$1F30
-C4		EQU		$1F29
-CS4		EQU		$1F23
-D4		EQU		$1F1D
-EF4		EQU		$1F17
-E4		EQU		$1F12
-F4		EQU		$1F0D
-FS4		EQU		$1F08
-RS		EQU		$0004
-TR		EQU		TG
-;*************************************;
-;Organ Tune Table - in 4th octave
-;*************************************;
-; Oscillator Mask(1), Delay(1), Duration(2)
-ORGTAB  FCB    3*4
-;43CD / ? / ? = 05FC
-;6BA2 / ? / ? = 11F0
-;556D / ? / ? = 071E
+AF1	EQU	$F847
+A1	EQU	$F83F
+BF1	EQU	$F837
+B1	EQU	$F830
+C1	EQU	$F829
+CS1	EQU	$F823
+D1	EQU	$F81D
+EF1	EQU	$F817
+E1	EQU	$F812
+F1	EQU	$F80D
+FS1	EQU	$F808
+G2	EQU	$F804
+AF2	EQU	$7C47
+A2	EQU	$7C3F
+BF2	EQU	$7C37
+B2	EQU	$7C30
+C2	EQU	$7C29
+CS2	EQU	$7C23
+D2	EQU	$7C1D
+EF2	EQU	$7C17
+E2	EQU	$7C12
+F2	EQU	$7C0D
+FS2	EQU	$7C08
+G3	EQU	$7C04
+AF3	EQU	$3E47
+A3	EQU	$3E3F
+BF3	EQU	$3E37
+B3	EQU	$3E30
+C3	EQU	$3E29
+CS3	EQU	$3E23
+D3	EQU	$3E1D
+EF3	EQU	$3E17
+E3	EQU	$3E12
+F3	EQU	$3E0D
+FS3	EQU	$3E08
+G4	EQU	$3E04
+AF4	EQU	$1F47
+A4	EQU	$1F3F
+BF4	EQU	$1F37
+B4	EQU	$1F30
+C4	EQU	$1F29
+CS4	EQU	$1F23
+D4	EQU	$1F1D
+EF4	EQU	$1F17
+E4	EQU	$1F12
+F4	EQU	$1F0D
+FS4	EQU	$1F08
+;; (Actual Sinistar Notes)
+AF7	EQU	$0347
+C7	EQU	$0329
+E7	EQU	$0312
 ;;
-;;	(Listed as A Flat in 4th octave (AF4), but it sounds like a G6 note)
+RS	EQU	$0004
+TR	EQU	TG
+*
+* ORGAN TUNE TABLE
+* OSCILLATOR MASK(1),DELAY(1),DURATION(2)
+*
+ORGTAB  FCB  	3*4
+;;
+;;	(Listed as A Flat in 7th octave (AF7), but it sounds like a G6 note)
 ;;	$03 = octave, $47 = AF, $05 = delay?, $FC = duration?
 ;;
-        FDB		$0347, $05FC                    
+        FDB	AF7,$05FC
 ;;
-;;	(Listed as E in 4th octave (E4), but it sounds like a D#7 note)
+;;	(Listed as E in 7th octave (E7), but it sounds like a D#7 note)
 ;;	$03 = octave, $47 = E, $11 = delay?, $F0 = duration?
 ;;
-        FDB		$0312, $11F0                    
+        FDB	E7,$11F0
 ;;
-;;	(Listed as C in 4th octave (C4), but it sounds like a B6 note)
+;;	(Listed as C in 7th octave (C7), but it sounds like a B6 note)
 ;;	$03 = octave, $29 = C, $07= delay?, $1E = duration?
 ;;
-        FDB		$0329, $071E                    
+        FDB	C7,$071E
+;;
+;;	Organ note durations are calculated, so it's currently unknown
+;;	how to get to these numbers.  The first word for each note is
+;;	the Note Time shifted to the right by 1 (TAF, TC, TE).
+;;	43CD / ? / ? = 05FC
+;;	6BA2 / ? / ? = 11F0
+;;	556D / ? / ? = 071E
+;;
+;;	An example of note durations from VSNDRM3.SRC (Robotron):
+;;FIFTH	EQU	*
+;;FIF	EQU	6
+;;	FDB	G2,TG/FIF/4
+;;	FDB	RS,TR/FIF/4
+;;	FDB	G2,TG/FIF/4
+;;	FDB	RS,TR/FIF/4
+;;	FDB	G2,TG/FIF/4
+;;	FDB	RS,TR/FIF/4
+;;	FDB	EF1,TEF/FIF/2*7
+;;	FCB	TUNEND-NINTH
 ;;---------------------------------------------------------------------
-;;		
+;;
+;;	***WALSH FUNCTION SOUND MACHINE*** 
+;;
 ;;	(This is where the Walsh Function synth code begins. This routine
 ;;	is huge and accounts for almost 30% of the entire ROM.  Because
 ;;	the Walsh Function isn't used in the cockpit rear sound board ROM,
@@ -815,123 +863,124 @@ ORGTAB  FCB    3*4
 ;;	checksum would be different.)
 ;;
 ;;---------------------------------------------------------------------
-		IFNDEF	STEREO
-		ORG 	$F686			;;(VSNDRM9)
-		ELSE
-		ORG 	$F684			;;(VSNDRM10)
-		ENDIF
+	IFNDEF	STEREO
+	ORG 	$F686			;;(VSNDRM9)
+	ELSE
+	ORG 	$F684			;;(VSNDRM10)
+	ENDIF
+;;
 ;;	(Unused Glitchy Noise Loader)
-NOISELD	TAB						;;(we now return to our regularly 
-								;;scheduled program...)
-		BGT		NOISEB
-		ASLB
-		ASLB 
- 		ASLB  
-		ASLB 
-		STAB	$03
-		TAB
-		LDAA	#$04
-		SBA
+NOISELD	TAB				;;(we now return to our regularly 
+					;;scheduled program...)
+	BGT	NOISEB
+	ASLB
+	ASLB 
+ 	ASLB  
+	ASLB 
+	STAB	$03
+	TAB
+	LDAA	#$04
+	SBA
 NOILOOP	PSHA
-		JSR		NSTART
-		LDAB	$03
-		ADDB	#$30
-		STAB	$03
-		JSR		NSTART
-		LDAB	$03
-		SUBB	#$18
-		STAB	$03
-		JSR		NSTART
-		PULA
-		DECA
-		BNE		NOILOOP
-		RTS
+	JSR	NSTART
+	LDAB	$03
+	ADDB	#$30
+	STAB	$03
+	JSR	NSTART
+	LDAB	$03
+	SUBB	#$18
+	STAB	$03
+	JSR	NSTART
+	PULA
+	DECA
+	BNE	NOILOOP
+	RTS
 NOISEB	LDAB	#$7F
-		JSR 	NOISOUT
-		LDAB	#$C0
-		JSR 	NOISOUT
-		LDAB	#$FF
-		JSR 	NOISOUT
-		LDAB	#$7F
-		JSR 	NOISOUT
-		LDAB	#$3F
-		JSR 	NOISOUT
-		RTS
+	JSR 	NOISOUT
+	LDAB	#$C0
+	JSR 	NOISOUT
+	LDAB	#$FF
+	JSR 	NOISOUT
+	LDAB	#$7F
+	JSR 	NOISOUT
+	LDAB	#$3F
+	JSR 	NOISOUT
+	RTS
 NSTART	LDAB	$03
 NOISOUT	STAB	SOUND
-		LDX		#$0040
-NDIVLP 	BSR		NOISE1
+	LDX	#$0040
+NDIVLP 	BSR	NOISE1
 NDIVLP2 PSHA
-		LDAB	#$03
-NDIVLP3	BSR		NOISE1
-		DECB
-		BNE		NDIVLP3
-		PULA
-		DECA
-		BNE		NDIVLP2
-		BSR		NOISE1
-		CMPA	#$7F
-		BGT		NDIVLP
-		COM		SOUND
-		DEX
-		BNE		NDIVLP
-		RTS
+	LDAB	#$03
+NDIVLP3	BSR	NOISE1
+	DECB
+	BNE	NDIVLP3
+	PULA
+	DECA
+	BNE	NDIVLP2
+	BSR	NOISE1
+	CMPA	#$7F
+	BGT	NDIVLP
+	COM	SOUND
+	DEX
+	BNE	NDIVLP
+	RTS
 ;;
 ;;	(Appears to be a general noise routine.  There's similarities to
 ;;	routines found in other sound roms.  NOISE1 gets called a lot by
-;;	in this section of the code.)
+;;	a few of the unused noise synth routines.)
 ;;	
-NOISE1 	LDAA	LO 				;GET RANDOM BIT
-		LSRA
-		EORA	LO
-		LSRA 
-		LSRA
-		ROR		HI
-		ROR		LO				
-		RTS  
+NOISE1 	LDAA	LO 			;GET RANDOM BIT
+	LSRA
+	EORA	LO
+	LSRA 
+	LSRA
+	ROR	HI
+	ROR	LO				
+	RTS  
 ;;---------------------------------------------------------------------
 ;;
-;;	(Will-I-ROMS calls this SYNTH28.  It gets called by Diagnostic
-;;	Processing for checksum verification. This routine makes a weird
-;;	bubbly pitch bend noise)
+;;	(Will-I-ROMS labeled this as SYNTH28.  It gets called by
+;;	Diagnostic Processing for checksum verification. This routine
+;;	makes a weird bubbly pitch bend noise)
 ;;
 DIAGNOI	CLRA
-		STAA	SOUND
-		LDX		#ENDRAM			;;?
-DIAGMLP	STX		TEMPA
-		LDAA	TEMPB
+	STAA	SOUND
+	LDX	#ENDRAM			;;?
+DIAGMLP	STX	TEMPA
+	LDAA	TEMPB
 DIAGLP1	DECA
-		PSHA
-		PULA
-		PSHA
-		PULA
-		PSHA
-		PULA
-		BNE		DIAGLP1
-		COM		SOUND
-		LDAA	TEMPB
+	PSHA
+	PULA
+	PSHA
+	PULA
+	PSHA
+	PULA
+	BNE	DIAGLP1
+	COM	SOUND
+	LDAA	TEMPB
 DIAGLP2	DECA
-		PSHA
-		PULA
-		PSHA
-		PULA
-		PSHA
-		PULA
-		BNE		DIAGLP2
-		COM		SOUND
-		BSR		NOISE1
-		TAB
+	PSHA
+	PULA
+	PSHA
+	PULA
+	PSHA
+	PULA
+	BNE	DIAGLP2
+	COM	SOUND
+	BSR	NOISE1
+	TAB
 DIAGBL1	DECB
-		BNE		DIAGBL1
-		COM		SOUND
-		TAB 
+	BNE	DIAGBL1
+	COM	SOUND
+	TAB 
 DIAGBL2	DECB
-		BNE		DIAGBL2
-		COM		SOUND
-		INC		SOUND
-		DEX  
-		BNE		DIAGMLP
-		RTS
+	BNE	DIAGBL2
+	COM	SOUND
+	INC	SOUND
+	DEX  
+	BNE	DIAGMLP
+	RTS
 ;;---------------------------------------------------------------------
 ;;
 ;;	(Will-I-ROMS labeled this as SYNTH29.  It doesn't look like this is
@@ -939,119 +988,119 @@ DIAGBL2	DECB
 ;;	bass stab noise using a similar "stacker" subroutine in DIAGNOI)
 ;;
 WEIRD	CLRA
-		STAA	SOUND
-		LDX		#$01
-WEIRMLP STX		TEMPA
-		LDAA	TEMPB
+	STAA	SOUND
+	LDX	#$01
+WEIRMLP STX	TEMPA
+	LDAA	TEMPB
 WEIRLP1 DECA
-		PSHA
-		PULA
-		PSHA
-		PULA
-		PSHA
-		PULA
-		BNE		WEIRLP1
-		COM		SOUND
-		LDAA	TEMPB
+	PSHA
+	PULA
+	PSHA
+	PULA
+	PSHA
+	PULA
+	BNE	WEIRLP1
+	COM	SOUND
+	LDAA	TEMPB
 WEIRLP2 DECA
-		PSHA
-		PULA
-		PSHA
-		PULA
-		PSHA
-		PULA 
-		BNE		WEIRLP2
-		COM		SOUND
-		BSR		NOISE1
+	PSHA
+	PULA
+	PSHA
+	PULA
+	PSHA
+	PULA 
+	BNE	WEIRLP2
+	COM	SOUND
+	BSR	NOISE1
 WLDBLP1	LDAB	#$20
 WDECBL1	DECB
-		BNE		WDECBL1
-		DECA
-		BNE		WLDBLP1
-		COM		SOUND
-		BSR		NOISE1
+	BNE	WDECBL1
+	DECA
+	BNE	WLDBLP1
+	COM	SOUND
+	BSR	NOISE1
 WLDBLP2	LDAB	#$20
 WDECBL2	DECB 
-		BNE		WDECBL2
-		DECA 
-		BNE		WLDBLP2
-		COM		SOUND
-		INC		SOUND
-		INX
-		CMPX	#$0010
-		BNE		WEIRMLP
-		RTS
+	BNE	WDECBL2
+	DECA 
+	BNE	WLDBLP2
+	COM	SOUND
+	INC	SOUND
+	INX
+	CMPX	#$0010
+	BNE	WEIRMLP
+	RTS
 ;;---------------------------------------------------------------------
 ;;
 ;;	(This initializes the unused background drone)	
 ;;
-BGCLRFG	EQU		$0003
-BGPITCH	EQU		$05
-BGA		EQU		$60
-BGB		EQU		$13
+BGCLRFG	EQU	$0003
+BGPITCH	EQU	$05
+BGA	EQU	$60
+BGB	EQU	$13
 ;;
-DRONELD	CLR		BGCLRFG
-		ASLB 
-		ASLB 
-		ASLB
-		STAB	BGPITCH
-		LDAA	#$01
-		STAA	BG1FLG
-		RTS
+DRONELD	CLR	BGCLRFG
+	ASLB 
+	ASLB 
+	ASLB
+	STAB	BGPITCH
+	LDAA	#$01
+	STAA	BG1FLG
+	RTS
 ;;
 DROSYN	LDAA	#BGA
-		STAA	SOUND
+	STAA	SOUND
 ;;
 DROLP1	LDAA	BGPITCH
 ;;
 DROA11	LDAB	#BGB
 ;;
 DROB11	DECB
-		BNE		DROB11
-		DECA
-		BNE		DROA11
-		COM		SOUND
-		LDAA	BGPITCH
+	BNE	DROB11
+	DECA
+	BNE	DROA11
+	COM	SOUND
+	LDAA	BGPITCH
 ;;
 DROA12  LDAB	#BGB
 ;;
 DROB12	DECB 
-		BNE		DROB12
-		DECA
-		BNE		DROA12
-		COM		SOUND
-		INC		SOUND
-		LDAA	#$7F
-		CMPA	SOUND
-		BNE		DROLP1
+	BNE	DROB12
+	DECA
+	BNE	DROA12
+	COM	SOUND
+	INC	SOUND
+	LDAA	#$7F
+	CMPA	SOUND
+	BNE	DROLP1
 ;;
 DROLP2	LDAA	BGPITCH
 ;;
 DROA21	LDAB  	#BGB
 ;;
 DROB21	DECB
-		BNE		DROB21
-		DECA 
-		BNE		DROA21
-		COM		SOUND
-		LDAA	BGPITCH
+	BNE	DROB21
+	DECA 
+	BNE	DROA21
+	COM	SOUND
+	LDAA	BGPITCH
 ;;
 DROA22	LDAB 	#BGB
 ;;
 DROB22	DECB
-		BNE		DROB22
-		DECA
-		BNE		DROA22
-		COM		SOUND
-		DEC		SOUND
-		LDAA	#BGA
-		CMPA	SOUND
-		BNE		DROLP2
-		BRA		DROLP1
-SVTAB	EQU		$F9BB
-GWVTAB	EQU		$F90C
-GFRTAB	EQU		$FA24
-TRANS	EQU		$FA9A
+	BNE	DROB22
+	DECA
+	BNE	DROA22
+	COM	SOUND
+	DEC	SOUND
+	LDAA	#BGA
+	CMPA	SOUND
+	BNE	DROLP2
+	BRA	DROLP1
+SVTAB	EQU	$F9BB
+GWVTAB	EQU	$F90C
+GFRTAB	EQU	$FA24
+TRANS	EQU	$FA9A
 ;;---------------------------------------------------------------------
 *
 *
