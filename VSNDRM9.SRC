@@ -219,7 +219,7 @@ GWTAB	RMB	WVELEN			;WAVE TABLE		;;($20)
 *ORGAN PARAMETERS
 *
 ;;
-;;	(vasm was getting overlapping section errors with LOCRAM
+;;	(vasm was getting overlapping section errors with ORG LOCRAM
 ;;	so RORG LOCRAM and REND was used to fix this.) 
 ;;
         RORG   	LOCRAM
@@ -228,6 +228,21 @@ DUR     RMB    	2               	;NOTE DURATION		;;($0F)
 OSCIL   RMB    	1               	;OSCILLATORS		;;($11)
 RDELAY  RMB    	60              	;RAM DELAY LOAD		;;($12)
         REND
+;;
+;;	These labels had to be modified in order for vasm to build.
+;;	"$" at the end of the label are okay, but any in the middle
+;;	have been replaced with "S".
+;;
+	RORG	LOCRAM+1
+FREQ$	RMB	1			;START FREQUENCY	;;($0F)
+CSFRQ	RMB	1			;CYCLES AT FREQUENCY
+DSFRQ	RMB	1			;DELTA FREQUENCY
+ESFRQ	RMB	1			;END FREQUENCY
+CSAMP	RMB	1			;CYCLES AT AMPLITUDE
+DSAMP	RMB	1			;DELTA AMPLITUDE
+CSAMP$	RMB	1			;CYCLE COUNTER
+CSFRQ$	RMB	1			;CYCLE COUNTER
+	REND
 *
 *
 *
@@ -1762,19 +1777,25 @@ FBCD : 03       illegal
 FBCE : 01       nop  
 FBCF : 20 FF    bra  $FBD0
 FBD1 : 00       illegal
-FBD2 : A6 00    lda  (x+$00)
-FBD4 : 97 0F    sta  $0F
-FBD6 : A6 01    lda  (x+$01)
-FBD8 : 97 10    sta  $10
-FBDA : A6 02    lda  (x+$02)
-FBDC : 97 11    sta  $11
-FBDE : A6 03    lda  (x+$03)
-FBE0 : 97 12    sta  $12
-FBE2 : A6 04    lda  (x+$04)
-FBE4 : 97 13    sta  $13
-FBE6 : A6 05    lda  (x+$05)
-FBE8 : 97 14    sta  $14
-FBEA : 39       rts  
+*
+*	MOVE PARAMETERS
+*
+MOVE	LDAA	0,X
+	STAA	FREQ$
+	LDAA	1,X
+	STAA	CSFRQ
+	LDAA	2,X
+	STAA	DSFRQ
+	LDAA	3,X
+	STAA	ESFRQ
+	LDAA	4,X
+	STAA	CSAMP
+	LDAA	5,X
+	STAA	DSAMP
+	RTS
+*
+*	DELTA F, DELTA A ROUTINE
+*
 FBEB : 96 18    lda  $18
 FBED : 37       pshb 
 FBEE : D6 13    ldb  $13
