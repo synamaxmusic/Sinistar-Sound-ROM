@@ -1481,52 +1481,52 @@ PCRYSV	FCB	$18,$11,$09,$00,$00,$14,$40	;;A3 = PLAYER CRYSTAL PICKUP				(QPlayCr)
 *
 GFRTAB  EQU    	*
 ;;
-;; PLAYER START PATTERN 			;;(Length = $04)($00 = STARTP-GFRTAB)
+;; PLAYER START PATTERN 		;;(Length = $04)($00 = STARTP-GFRTAB)
 STARTP	FCB	$28,$01,$02
 ;;
-;; UNUSED BLASTER ALARM 			;;(Length = $02)($03 = BLASTP-GFRTAB)
+;; UNUSED BLASTER ALARM 		;;(Length = $02)($03 = BLASTP-GFRTAB)
 BLASTP	FCB	$26
 ;;
-;; PIECE ADDED / GAME OVER 			;;(Length = $03)($04 = CLANGP-GFRTAB)
+;; PIECE ADDED / GAME OVER 		;;(Length = $03)($04 = CLANGP-GFRTAB)
 CLANGP	FCB	$03,$04,$24,$05,$06,$22,$07,$08
 	FCB	$20,$09,$0A,$1E,$0B,$0C,$1C,$0D
 	FCB	$0E,$1A,$0F,$10,$18,$11,$12,$16
 	FCB	$13,$14 
 ;;
-;; SINISTAR SPEECH ERROR			;;(Length = $1A)($1E = ERRORP-GFRTAB)
+;; SINISTAR SPEECH ERROR		;;(Length = $1A)($1E = ERRORP-GFRTAB)
 ERRORP	FCB	$40,$01,$3E,$03,$3C,$05,$3A,$07
 	FCB	$38,$09,$35,$0C,$32,$0F,$2F,$12
 	FCB	$2C,$15,$28,$19,$24,$1D,$20,$21
 	FCB	$20,$21
 ;;
 *SWEEP PATTERN
-SWPAT	EQU	*				;;(SWPAT-GFRTAB used by DPV1)
-*BIGBEN SOUNDS					;;(Length = $0A)($38 = BBSND-GFRTAB)	(Truncated BBSND pattern)
+SWPAT	EQU	*			;;(SWPAT-GFRTAB used by DPV1)
+*BIGBEN SOUNDS				;;(Length = $0A)($38 = BBSND-GFRTAB)	(Truncated BBSND pattern)
 BBSND	FCB	$08,$40,$08,$40,$08,$40,$08,$40 
 ;;
-;; PLAYER CRYSTAL PICKUP			;;(Length = $14)($40 = PCRYSP-GFRTAB)
+;; PLAYER CRYSTAL PICKUP		;;(Length = $14)($40 = PCRYSP-GFRTAB)
 PCRYSP	FCB	$08,$40	
 ;;
-;; PLAYER/WARRIOR FIRE PATTERN			;;(Length = $03)($42 = FIRESND-GFRTAB)	(PLAYER)
-FIRESND	FCB	$01,$02,$03,$04                	;;(Length = $04)($42 = FIRESND-GFRTAB)	(WARRIOR)
+;; PLAYER/WARRIOR FIRE PATTERN		;;(Length = $03)($42 = FIRESND-GFRTAB)	(PLAYER)
+FIRESND	FCB	$01,$02,$03,$04		;;(Length = $04)($42 = FIRESND-GFRTAB)	(WARRIOR)
 ;;
-;; UNUSED ALTERNATE BOUNCE			;;(Length = $04)($46 = UBOUNCP-GFRTAB)
+;; UNUSED ALTERNATE BOUNCE		;;(Length = $04)($46 = UBOUNCP-GFRTAB)
 UBOUNCP	FCB	$20,$18,$20,$01
 ;;
-;; BOUNCE PATTERN				;;(Length = $04)($4A = BOUNCEP-GFRTAB)
+;; BOUNCE PATTERN			;;(Length = $04)($4A = BOUNCEP-GFRTAB)
 BOUNCEP	FCB	$01,$30,$28,$30                 
 ;;
-;; WORKER CRYSTAL PICKUP			;;(Length = $16)($4E = ECRYSP-GFRTAB)
+;; WORKER CRYSTAL PICKUP		;;(Length = $16)($4E = ECRYSP-GFRTAB)
 ECRYSP	FCB	$1E,$02,$1B,$04,$23,$07,$1D,$01
 	FCB	$22,$03,$19,$09,$1F,$06,$1A,$05
 	FCB	$1C,$0B,$21,$08,$20,$0A
 ;;
-*SPINNER SOUND "DRIP"				;;(Length = $04)($64 = SPNR-GFRTAB)	(ED'S SOUND 17)
+*SPINNER SOUND "DRIP"			;;(Length = $04)($64 = SPNR-GFRTAB)	(ED'S SOUND 17)
 SPNR    FCB    	$40
 *COOL DOWNER
 COOLDN  FCB    	$10,8,1
 ;;
-;; CRYSTAL FLASHING				;;(Length = $0E)($68 = CRYSFP-GFRTAB)
+;; CRYSTAL FLASHING			;;(Length = $0E)($68 = CRYSFP-GFRTAB)
 CRYSFP	FCB	$08,$80,$10,$78,$18,$70,$20,$60
 	FCB	$28,$58,$30,$50,$40,$48
 *
@@ -1558,21 +1558,21 @@ UNKLITE	ASLA
 *
 *LIGHTNING
 *
-LITE	LDAB	#3				;;(this instruction has been flip-flopped)
-	STAA	LFREQ				;;(originally used DFREQ)
-	LDAA	#1				;;(this instruction has been flip-flopped)
+LITE	LDAB	#3			;;(this instruction has been flip-flopped)
+	STAA	LFREQ			;;(originally used DFREQ)
+	LDAA	#1			;;(this instruction has been flip-flopped)
 *
 *LIGHTNING+APPEAR NOISE ROUTINE
 *
 LITEN	STAA	LFREQ
-	LDAA	#$FF				;HIGHEST AMP
+	LDAA	#$FF			;HIGHEST AMP
 	;;
-	SUBA 	DFREQ				;;(new instruction)
+	SUBA 	DFREQ			;;(new instruction)
 	;;
 	STAA	SOUND
 	STAB	CYCNT
 LITE0	LDAB	CYCNT
-LITE1	LDAA	LO				;GET RANDOM
+LITE1	LDAA	LO			;GET RANDOM
 	LSRA
 	LSRA
 	LSRA
@@ -1582,14 +1582,14 @@ LITE1	LDAA	LO				;GET RANDOM
 	ROR	LO
 	BCC	LITE2
 	;;
-	LDAA 	SOUND				;;
-	COMA 					;;(original instruction was just: COM SOUND)
-	STAA 	SOUND				;;
+	LDAA 	SOUND			;;
+	COMA 				;;(original instruction was just: COM SOUND)
+	STAA 	SOUND			;;
 	;;
-LITE2	LDAA	LFREQ				;COUNT FREQ
+LITE2	LDAA	LFREQ			;COUNT FREQ
 LITE3	DECA
 	BNE	LITE3
-	DECB					;COUNT CYCLES
+	DECB				;COUNT CYCLES
 	BNE	LITE1
 	LDAA	LFREQ
 	ADDA	DFREQ
@@ -1601,45 +1601,67 @@ LITE3	DECA
 *
 HYPER	CLRA
 	STAA	SOUND	
-	STAA	TEMPA				;ZERO PHASE
-HYPER1	CLRA					;ZERO TIME COUNTER
+	STAA	TEMPA			;ZERO PHASE
+HYPER1	CLRA				;ZERO TIME COUNTER
 HYPER2	CMPA	TEMPA	
 	BNE	HYPER3
-	COM	SOUND				;PHASE EDGE?, COMPLEMENT SOUND
-HYPER3	LDAB	#18				;DELAY
+	COM	SOUND			;PHASE EDGE?, COMPLEMENT SOUND
+HYPER3	LDAB	#18			;DELAY
 HYPER4	DECB
 	BNE	HYPER4
-	INCA					;ADVANCE TIME COUNTER
+	INCA				;ADVANCE TIME COUNTER
 	BPL	HYPER2	
-	COM	SOUND				;CYCLE DONE?, CYCLE EDGE
-	INC	TEMPA				;NEXT PHASE
-	BPL	HYPER1				;DONE?
+	COM	SOUND			;CYCLE DONE?, CYCLE EDGE
+	INC	TEMPA			;NEXT PHASE
+	BPL	HYPER1			;DONE?
 	RTS
 	END
+;;---------------------------------------------------------------------
+;;
+;;   CANNON Noise Routines
+;;
+;;	Three variations of this routine are used to make the explosion
+;;	noises.  
+;;
+;;	The first one (CANNON) is identical to the routine found in
+;;	VSNDRM1.  It is called by "QBANG" for enemy and planetoid
+;;	explosions.  The routine enables DSFLAG and loads #1000 into
+;;	X, giving us a medium-length distorted cannon blast.
+;;
+;;	The next one is called by the "IMPACT" sound trigger and
+;;	plays whenever the player is hit before exploding.  I labled it
+;;	as "GUNBANG" because it has a much shorter duration and the
+;;	distortion flag is turned off, creating a white noise burst,
+;;	that sounds not unlike a gun.
+;;
+;;	The third one is "C4NNON" (the 1337 name is from WILL-I-ROMs).
+;;	It's exactly the same as CANNON except it plays a longer
+;;	duration by loading #4000 into X instead of #1000.
+;;
 *
-*CANNON
+*CANNON					
 *
-CANNON  LDAA   	#1
-        STAA   	DSFLG
-        LDX   	#1000
-        LDAA   	#1
-        LDAB   	#$FF
+CANNON  LDAA   	#1			;;(turn on distortion flag)
+        STAA   	DSFLG			;;
+        LDX   	#1000			;;(duration = 1000)
+        LDAA   	#1			;;(FDFLG)(FREQUENCY DECREMENT FLAG)
+        LDAB   	#$FF			;;(FMAX)(MAXIMUM_FREQUENCY)
         BRA    	FNOISE
 ;;
 ;;
-FB1D : 86 00    lda  #$00
-FB1F : 97 14    sta  $14
-FB21 : CE 00 80 ldx  #$0080
-FB24 : 86 01    lda  #$01
-FB26 : C6 C0    ldb  #$C0
+GUNBANG LDAA   	#0			;;(turn oFF distortion flag)
+        STAA   	DSFLG			;;
+        LDX   	#128			;;(duration = 128)
+        LDAA   	#1			;;(FDFLG)
+        LDAB   	#$C0			;;(FMAX)
         BRA    	FNOISE
 ;;
 ;;
-C4NNON  LDAA   	#1
-        STAA   	DSFLG
-        LDX   	#4000
-        LDAA   	#1
-        LDAB   	#$FF
+C4NNON  LDAA   	#1			;;(turn on distortion flag)
+        STAA   	DSFLG			;;
+        LDX   	#4000			;;(duration = 4000)
+        LDAA   	#1			;;(FDFLG)
+        LDAB   	#$FF			;;(FMAX)
         BRA    	FNOISE
 *
 *FILTERED NOISE ROUTINE
@@ -1652,64 +1674,63 @@ FNOISE  STAA   	FDFLG
         CLR    	FLO
 FNOIS0  LDX    	SAMPC
 	LDAA	SOUND
-FB45 : 16       tab  
-FB46 : 54       lsrb 
-FB47 : 54       lsrb 
-FB48 : 54       lsrb 
-FB49 : D8 02    eorb $02
-FB4B : 54       lsrb 
-FB4C : 76 00 01 ror  $0001			;;get HI random number
-FB4F : 76 00 02 ror  $0002
-FB52 : D6 0E    ldb  $0E
-FB54 : 7D 00 14 tst  $0014
-FB57 : 27 02    beq  $FB5B
-FB59 : D4 01    andb $01
-;;
-FB5B : D7 0F    stb  $0F
-FB5D : D6 10    ldb  $10
-FB5F : 91 02    cmpa $02
-FB61 : 22 12    bhi  $FB75
-FB63 : 09       dex  
-FB64 : 27 26    beq  $FB8C
-FB66 : B7 04 00 sta  $0400
-FB69 : DB 10    addb $10
-FB6B : 99 0F    adca $0F
-FB6D : 25 16    bcs  $FB85
-FB6F : 91 02    cmpa $02
-FB71 : 23 F0    bls  $FB63
-FB73 : 20 10    bra  $FB85
-FB75 : 09       dex  
-FB76 : 27 14    beq  $FB8C
-FB78 : B7 04 00 sta  $0400
-FB7B : D0 10    subb $10
-FB7D : 92 0F    sbca $0F
-FB7F : 25 04    bcs  $FB85
-FB81 : 91 02    cmpa $02
-FB83 : 22 F0    bhi  $FB75
-FB85 : 96 02    lda  $02
-FB87 : B7 04 00 sta  $0400
-FB8A : 20 B9    bra  $FB45
-FB8C : D6 13    ldb  $13
-FB8E : 27 B5    beq  $FB45
-FB90 : 96 0E    lda  $0E
-FB92 : D6 10    ldb  $10
-FB94 : 44       lsra 
-FB95 : 56       rorb 
-FB96 : 44       lsra 
-FB97 : 56       rorb 
-FB98 : 44       lsra 
-FB99 : 56       rorb 
-FB9A : 43       coma 
-FB9B : 50       negb 
-FB9C : 82 FF    sbca #$FF
-FB9E : DB 10    addb $10
-FBA0 : 99 0E    adca $0E
-FBA2 : D7 10    stb  $10
-FBA4 : 97 0E    sta  $0E
-FBA6 : 26 98    bne  $FB40
-FBA8 : C1 07    cmpb #$07
-FBAA : 26 94    bne  $FB40
-FBAC : 39       rts  
+FNOIS1  TAB                     	;NEXT RANDOM NUMBER
+        LSRB 
+        LSRB 
+        LSRB 
+        EORB   	LO
+        LSRB 
+        ROR   	HI
+        ROR    	LO
+        LDAB   	FMAX             	;SET FREQ
+        TST    	DSFLG
+        BEQ    	FNOIS2
+        ANDB   	HI               	;DISTORT FREQUENCY
+FNOIS2  STAB   	FHI
+        LDAB   	FLO
+        CMPA   	LO
+        BHI    	FNOIS4
+FNOIS3  DEX    	                 	;SLOPE UP
+        BEQ    	FNOIS6
+        STAA   	SOUND
+        ADDB   	FLO
+        ADCA   	FHI
+        BCS    	FNOIS5
+        CMPA   	LO
+        BLS    	FNOIS3
+        BRA    	FNOIS5
+FNOIS4  DEX                     	;SLOPE DOWN
+        BEQ    	FNOIS6
+        STAA   	SOUND
+        SUBB   	FLO
+        SBCA   	FHI
+        BCS    	FNOIS5
+        CMPA   	LO
+        BHI    	FNOIS4
+FNOIS5  LDAA   	LO
+        STAA   	SOUND
+        BRA    	FNOIS1
+FNOIS6  LDAB   	FDFLG
+        BEQ    	FNOIS1
+        LDAA   	FMAX             	;DECAY MAX FREQ
+        LDAB   	FLO
+        LSRA 
+        RORB 
+        LSRA 
+        RORB 
+        LSRA 
+        RORB 
+        COMA 
+        NEGB 
+        SBCA   	#-1
+      	ADDB   	FLO
+        ADCA   	FMAX
+        STAB   	FLO
+        STAA   	FMAX
+        BNE    	FNOIS0
+        CMPB   	#7
+        BNE    	FNOIS0
+        RTS  
 FBAD : C6 FF    ldb  #$FF
 FBAF : D7 18    stb  $18
 FBB1 : CE FB C6 ldx  #$FBC6
