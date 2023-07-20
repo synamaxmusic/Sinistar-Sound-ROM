@@ -149,6 +149,7 @@ TFS     EQU    	61857>>1
 TG      EQU    	65535>>1
 ;; Added Constants
 RAM	SET	$0000
+TALKJMP EQU	$FFF3			;;(speech rom entry for ADDX)
 *
 *
 * TALKING EQUATES
@@ -1759,6 +1760,10 @@ FC40 : C0 05    subb #$05
 FC42 : 20 B8    bra  $FBFC
 FC44 : 33       pulb 
 FC45 : 39       rts  
+;;---------------------------------------------------------------------
+;;
+	ORG	TALKJMP
+TALKADX	JMP	ADDX
 *
 * VECTORS HERE
 *
