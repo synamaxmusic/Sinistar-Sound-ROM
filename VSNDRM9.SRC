@@ -667,20 +667,20 @@ DELAY	DEX
 ;;	up a different sound:
 ;;
 ;; 	soundcpu.rb@f18a = 10 (UNUSED WARNING?)
-;; 	soundcpu.rb@f18a = 0F (SINISTAR ERROR)
-;; 	soundcpu.rb@f18a = 0E (AF = SINI-BOMB) (Original value)
-;; 	soundcpu.rb@f18a = 0D (AE = PLAYER FIRE)
-;; 	soundcpu.rb@f18a = 0C (AD = ENEMY FIRE)
+;; 	soundcpu.rb@f18a = 0F (SINISTAR SPEECH ERROR)
+;; 	soundcpu.rb@f18a = 0E (AF = SINI-BOMB) (Original value)	(QSFire)
+;; 	soundcpu.rb@f18a = 0D (AE = PLAYER FIRE)		(QFIRE)
+;; 	soundcpu.rb@f18a = 0C (AD = WARRIOR FIRE)		(QWFIRE)
 ;; 	soundcpu.rb@f18a = 0B (UNUSED BOUNCE SOUND EFFECT)
-;; 	soundcpu.rb@f18a = 0A (AB = BOUNCE)
-;; 	soundcpu.rb@f18a = 09 (AA = ENEMY CRYSTAL PICKUP)
-;; 	soundcpu.rb@f18a = 08 (A9 = UNUSED FIRE?)
-;; 	soundcpu.rb@f18a = 07 (A8 = CRYSTAL BOMB-BAY FULL)
-;; 	soundcpu.rb@f18a = 06 (A7 = CRYSTAL FLASHING)
-;; 	soundcpu.rb@f18a = 05 (A6 = GAME OVER CUE)
+;; 	soundcpu.rb@f18a = 0A (AB = BOUNCE)			(QBOUNCE)
+;; 	soundcpu.rb@f18a = 09 (AA = WORKER CRYSTAL PICKUP)	(QWorkCr)
+;; 	soundcpu.rb@f18a = 08 (A9 = UNUSED "LANDER" FIRE) 	(FOUND IN DEFENDER VSNDRM1 AS DP1V)
+;; 	soundcpu.rb@f18a = 07 (A8 = CRYSTAL BOMB-BAY FULL)	(QFulCr)
+;; 	soundcpu.rb@f18a = 06 (A7 = CRYSTAL FLASHING) 		(QCRYFLA)
+;; 	soundcpu.rb@f18a = 05 (A6 = PIECE ADDED / GAME OVER)	(QWorkSi/QGamEnd)
 ;; 	soundcpu.rb@f18a = 04 (A5 = UNUSED BLASTER "ENERGY CRITICAL" ALARM)
-;; 	soundcpu.rb@f18a = 03 (A4 = START CUE)
-;; 	soundcpu.rb@f18a = 02 (A3 = PLAYER CRYSTAL PICKUP)
+;; 	soundcpu.rb@f18a = 03 (A4 = PLAYER START CUE) 		(QPlStr)
+;; 	soundcpu.rb@f18a = 02 (A3 = PLAYER CRYSTAL PICKUP)	(QPlayCr)
 ;;
 ;; 	There is a glitch in MAME's debugger that prevents $0B
 ;; 	from showing up in RAM.  Another way play these sounds is to
@@ -1403,9 +1403,19 @@ GS72	FCB	72
 ;;	
 ;;	FREQ PATTERN LENGTH
 ;;	The longer the length, the longer the duration will be.
-;;	
 ;;
-;;	START CUE
+;;	FREQ PATTERN OFFSET
+;;	In the source code for the other sound roms, the offset was
+;;	put in as the label for the start of the pattern minus the
+;;	address of the freq table (GFRTAB), like this:
+;;
+;;	ED17	FCB	$1F,$12,0,$FF,$10,4,SPNR-GFRTAB
+;;	
+;;	I have put in the labels for the patterns in the freq table
+;;	but to make it easier to read, the final hex values are in
+;;	the source code	instead of "[SNDLABEL]-GFRTAB".
+;;
+;;	***PLAYER START CUE***
 ;;	Mike Metz either created this sound with corruption or by
 ;;	randomly typing in different values.  There's some numbers here
 ;;	that don't make any sense.  
@@ -1434,17 +1444,20 @@ GS72	FCB	72
 SVTAB	EQU	*
 UNUSED0	FCB	$71,$23,$09,$00,$00,$1E,$00	;;UNUSED SOUND (UNUSED WARNING?)
 ERRORV	FCB	$74,$00,$09,$00,$00,$1A,$1E	;;SINISTAR SPEECH ERROR
-BBSV	FCB	$74,$12,$09,$00,$00,$0A,$38	;;AF = SINI-BOMB ("Big Ben" Bell Sound)
-PFIREV	FCB	$11,$06,$06,$02,$20,$03,$42	;;AE = PLAYER FIRE
-EFIREV	FCB	$11,$04,$0B,$01,$20,$04,$42	;;AD = ENEMY FIRE
+BBSV	FCB	$74,$12,$09,$00,$00,$0A,$38	;;AF = SINI-BOMB ("Big Ben" Bell Sound)			(QSFire)
+PFIREV	FCB	$11,$06,$06,$02,$20,$03,$42	;;AE = PLAYER FIRE					(QFIRE)
+EFIREV	FCB	$11,$04,$0B,$01,$20,$04,$42	;;AD = WARRIOR FIRE					(QWFIRE)
 UNUSED1	FCB	$12,$03,$09,$00,$00,$04,$46	;;UNUSED BOUNCE SOUND EFFECT (only difference is offset)
-BOUNCV	FCB	$12,$03,$09,$00,$00,$04,$4A	;;AB = BOUNCE
-ECRYSV	FCB	$16,$00,$09,$00,$00,$16,$4E	;;AA = ENEMY CRYSTAL PICKUP
-DP1V	FCB	$11,$05,$11,$01,$0F,$01,$38	;;A9 = UNUSED LANDER FIRE (FOUND IN DEFENDER'S VSNDRM1)
-ED17	FCB	$1F,$12,$09,$FF,$05,$04,$64	;;A8 = CRYSTAL BOMB-BAY FULL (ED'S SOUND 17)
-CRYSFV	FCB	$F1,$07,$09,$00,$00,$0E,$68	;;A7 = CRYSTAL FLASHING
-CLANGV	FCB	$68,$20,$00,$02,$26,$03,$04	;;A6 = GAME OVER CUE / SINISTAR PIECE ADDED
+BOUNCV	FCB	$12,$03,$09,$00,$00,$04,$4A	;;AB = BOUNCE						(QBOUNCE)
+ECRYSV	FCB	$16,$00,$09,$00,$00,$16,$4E	;;AA = WORKER CRYSTAL PICKUP				(QWorkCr)
+DP1V	FCB	$11,$05,$11,$01,$0F,$01,$38	;;A9 = UNUSED "LANDER" FIRE (FOUND IN DEFENDER VSNDRM1)
+ED17	FCB	$1F,$12,$09,$FF,$05,$04,$64	;;A8 = CRYSTAL BOMB-BAY FULL (ED'S SOUND 17)		(QFulCr)
+CRYSFV	FCB	$F1,$07,$09,$00,$00,$0E,$68	;;A7 = CRYSTAL FLASHING					(QCRYFLA)
+CLANGV	FCB	$68,$20,$00,$02,$26,$03,$04	;;A6 = SINISTAR PIECE ADDED / GAME OVER CUE		(QWorkSi/QGamEnd)
 BLASTV	FCB	$08,$47,$0B,$40,$01,$02,$03	;;A5 = UNUSED BLASTER "ENERGY CRITICAL" ALARM
-STARTV	FCB	$88,$F3,$90,$13,$B7,$04,$00	;;A4 = START CUE
-PCRYSV	FCB	$18,$11,$09,$00,$00,$14,$40	;;A3 = PLAYER CRYSTAL PICKUP
+STARTV	FCB	$88,$F3,$90,$13,$B7,$04,$00	;;A4 = PLAYER START CUE					(QPlStr)
+PCRYSV	FCB	$18,$11,$09,$00,$00,$14,$40	;;A3 = PLAYER CRYSTAL PICKUP				(QPlayCr)
+;;
+*
+GFRTAB	EQU	*
 	END
