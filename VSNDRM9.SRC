@@ -561,7 +561,7 @@ IMPACT	CMPA	#$07
 ;;		
 XPLODE	CMPA	#$08
 	BGT	NOISE			
-	JMP	$FB2A	
+	JMP	C4NNON	
 ;;---------------------------------------------------------------------
 ;;
 ;;  9 & 10) TWO UNUSED NOISE EFFECTS
@@ -587,7 +587,7 @@ RUNCOW	CMPA	#$0B
 ;;
 QBANG	CMPA	#$0C
 	BGT	IAMSINI			
-	JMP	$FB10		
+	JMP	CANNON		
 ;;---------------------------------------------------------------------
 ;;
 ;;  13) "I AM SINISTAR"
@@ -1625,18 +1625,22 @@ CANNON  LDAA   	#1
         LDAA   	#1
         LDAB   	#$FF
         BRA    	FNOISE
+;;
+;;
 FB1D : 86 00    lda  #$00
 FB1F : 97 14    sta  $14
 FB21 : CE 00 80 ldx  #$0080
 FB24 : 86 01    lda  #$01
 FB26 : C6 C0    ldb  #$C0
-FB28 : 20 0D    bra  $FB37
-FB2A : 86 01    lda  #$01
-FB2C : 97 14    sta  $14
-FB2E : CE 0F A0 ldx  #$0FA0
-FB31 : 86 01    lda  #$01
-FB33 : C6 FF    ldb  #$FF
-FB35 : 20 00    bra  $FB37
+        BRA    	FNOISE
+;;
+;;
+C4NNON  LDAA   	#1
+        STAA   	DSFLG
+        LDX   	#4000
+        LDAA   	#1
+        LDAB   	#$FF
+        BRA    	FNOISE
 *
 *FILTERED NOISE ROUTINE
 *X=SAMPLE COUNT, ACCB=INITIAL MAX FREQ
