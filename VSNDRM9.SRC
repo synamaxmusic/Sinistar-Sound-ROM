@@ -1098,7 +1098,6 @@ DROB22	DECB
 	CMPA	SOUND
 	BNE	DROLP2
 	BRA	DROLP1
-TRANS	EQU	$FA9A
 ;;---------------------------------------------------------------------
 *
 *
@@ -1518,6 +1517,22 @@ COOLDN  FCB    	$10,8,1
 ;; CRYSTAL FLASHING				;;(Length = $0E)($68 = CRYSFP-GFRTAB)
 CRYSFP	FCB	$08,$80,$10,$78,$18,$70,$20,$60
 		$28,$58,$30,$50,$40,$48
+*
+*PARAMETER TRANSFER
+*
+TRANS	PSHA
+TRANS1	LDAA	0,X
+	STX	XPLAY
+	LDX	XPTR
+	STAA	0,X
+	INX
+	STX	XPTR
+	LDX	XPLAY
+	INX
+	DECB
+	BNE	TRANS1
+	PULA
+	RTS
 	END
 *
 * VECTORS HERE
