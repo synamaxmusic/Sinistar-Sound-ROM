@@ -1550,8 +1550,11 @@ UNKLITE	ASLA
 LITE	LDAB	#3				;;(this instruction has been flip-flopped)
 	STAA	LFREQ				;;(originally used DFREQ)
 	LDAA	#1				;;(this instruction has been flip-flopped)
+*
+*LIGHTNING+APPEAR NOISE ROUTINE
+*
+LITEN	STAA	LFREQ
 	END
-FABC : 97 1F    sta  $1F
 FABE : 86 FF    lda  #$FF
 FAC0 : 90 15    suba $15
 FAC2 : B7 04 00 sta  $0400
