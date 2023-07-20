@@ -98,8 +98,8 @@
 ;	between Sinistar's sound code and other Williams Sound ROMs.
 ;
 ;	Original programmer comments are usually UPPER-CASE and have one
-;	semicolon (;).  My comments will be in lower-case, with parenthesis
-;	and start with two semicolons.
+;	semicolon (;).  My comments will have both upper and lower-cases,
+;	sometimes with parenthesis and always start with two semicolons.
 ;					;;(like this)
 ;
 ;;---------------------------------------------------------------------
@@ -114,7 +114,7 @@
 *		PAUL G. DUSSAULT,CARY W. KOLKER,TIM  MURPHY
 *			AND A CAST OF THOUSANDS......
 ;;SINISTAR SOUND DESIGNER/VIDEO SOUND ROM 9 & 10 PROGRAMMER: MIKE METZ
-;;ADDITIONAL SINIBOMB SOUND DESIGN: ED SUCHOCKI
+;;ADDITIONAL SINIBOMB (ED'S SOUND 17) SOUND DESIGN: ED SUCHOCKI
 *
 *
 *
@@ -1292,7 +1292,7 @@ WVDCX	RTS
 *VARI VECTORS
 *
 VVECT	EQU	*
-*	NONE AS OF YET			;;(variwave is not used in VSNDRM9) 
+*	NONE AS OF YET			;;(Variwave is not used in VSNDRM9) 
 *
 ;;---------------------------------------------------------------------
 ;;
@@ -1300,8 +1300,8 @@ VVECT	EQU	*
 ;;
 ;;	GWAVE is a a wavetable synthesizer routine written in 1979 by
 ;;	Eugene Jarvis.  This is arguably the most famous synth heard
-;;	in these games, responsible for many popular noises.  It relies
-;;	on three different tables to output sound:
+;;	in these games, responsible for many well-known noises.  
+;;	It relies on three different tables to output sound:
 ;;
 ;;	GWAVTAB (wave table)
 ;;	SVTAB (preset parameters)
@@ -1406,7 +1406,7 @@ GS72	FCB	72
 ;;
 ;;	FREQ PATTERN OFFSET
 ;;	In the source code for the other sound roms, the offset was
-;;	put in as the label for the start of the pattern minus the
+;;	put in as the label for the start of the pattern MINUS the
 ;;	address of the freq table (GFRTAB), like this:
 ;;
 ;;	ED17	FCB	$1F,$12,0,$FF,$10,4,SPNR-GFRTAB
@@ -1468,7 +1468,7 @@ STARTP	FCB	$28,$01,$02
 ;; UNUSED BLASTER ALARM 			;;(Length = $02)($03 = BLASTP-GFRTAB)
 BLASTP	FCB	$26
 ;;
-;; PIECE ADDED / GAME OVER 		;;(Length = $03)($04 = CLANGP-GFRTAB)
+;; PIECE ADDED / GAME OVER 			;;(Length = $03)($04 = CLANGP-GFRTAB)
 CLANGP	FCB	$03,$04,$24,$05,$06,$22,$07,$08
 	FCB	$20,$09,$0A,$1E,$0B,$0C,$1C,$0D
 	FCB	$0E,$1A,$0F,$10,$18,$11,$12,$16
