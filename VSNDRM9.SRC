@@ -1547,9 +1547,20 @@ TRANS1	LDAA	0,X
 	RTS
 ;;---------------------------------------------------------------------
 ;;
-;;   Unknown Lightning+Appear Routine Code (Unused - No call)
+;;   Unknown Lightning+Appear Routines (Unused - No call)
 ;;
-UNKLITE	ASLA 
+;;	These are really interesting.  LITE has been modifed and
+;;	and instead of doing a downward pitch bend, it goes upward and
+;;	loops forever.  Calling ENDLITE produces a quiet noise, similar
+;;	to the flapping sounds from Joust.  It stops LITE from looping
+;;	so I labled it as ENDLITE.
+;;
+;;	LITE sorta reminds me of Tempest's warp sound, with ENDLITE
+;;	acting as a "switching to impulse engines" effect.
+;;	It makes me wonder if these routines were originally going to
+;;	be used for the warp after defeating the Sinistar.
+;;
+ENDLITE	ASLA 
 	ASLA
 	ASLA
 	ASLA
