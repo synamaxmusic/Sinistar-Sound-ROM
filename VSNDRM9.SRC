@@ -1555,13 +1555,12 @@ LITE	LDAB	#3				;;(this instruction has been flip-flopped)
 *
 LITEN	STAA	LFREQ
 	END
-FABE : 86 FF    lda  #$FF
+	LDAA	#$FF				;HIGHEST AMP
 FAC0 : 90 15    suba $15
-FAC2 : B7 04 00 sta  $0400
-FAC5 : D7 10    stb  $10
-;;
-FAC7 : D6 10    ldb  $10
-FAC9 : 96 02    lda  $02
+	STAA	SOUND
+	STAB	CYCNT
+LITE0	LDAB	CYCNT
+LITE1	LDAA	LO				;GET RANDOM
 FACB : 44       lsra 
 FACC : 44       lsra 
 FACD : 44       lsra 
@@ -1579,11 +1578,11 @@ FAE0 : 96 14    lda  $14
 FAE2 : 4A       deca 
 FAE3 : 26 FD    bne  $FAE2
 FAE5 : 5A       decb 
-FAE6 : 26 E1    bne  $FAC9
+FAE6 : 26 E1    bne  LITE1
 FAE8 : 96 14    lda  $14
 FAEA : 9B 15    adda $15
 FAEC : 97 14    sta  $14
-FAEE : 26 D7    bne  $FAC7
+FAEE : 26 D7    bne  LITE0
 FAF0 : 39       rts  
 FAF1 : 4F       clra 
 FAF2 : B7 04 00 sta  $0400
