@@ -1462,29 +1462,31 @@ PCRYSV	FCB	$18,$11,$09,$00,$00,$14,$40	;;A3 = PLAYER CRYSTAL PICKUP				(QPlayCr)
 *
 GFRTAB  EQU    	*
 ;;
-;; Player Start Pattern (4-byte length)
+;; PLAYER START PATTERN 			;;(Length = $04)($00 = STARTP-GFRTAB)
 STARTP	FCB	$28,$01,$02
 ;;
-;; Unused Blaster Alarm (2-byte length)
+;; UNUSED BLASTER ALARM 			;;(Length = $02)($03 = BLASTP-GFRTAB)
 BLASTP	FCB	$26
 ;;
-;; Piece Added / Game Over (3-byte length)
+;; PIECE ADDED / GAME OVER 			;;(Length = $03)($04 = CLANGP-GFRTAB)
 CLANGP	FCB	$03,$04,$24,$05,$06,$22,$07,$08
 	FCB	$20,$09,$0A,$1E,$0B,$0C,$1C,$0D
 	FCB	$0E,$1A,$0F,$10,$18,$11,$12,$16
 	FCB	$13,$14 
 ;;
-;; Sinistar Speech Error (26-byte length)
+;; SINISTAR SPEECH ERROR			;;(Length = $1A)($1E = ERRORP-GFRTAB)
 ERRORP	FCB	$40,$01,$3E,$03,$3C,$05,$3A,$07
 	FCB	$38,$09,$35,$0C,$32,$0F,$2F,$12
 	FCB	$2C,$15,$28,$19,$24,$1D,$20,$21
 	FCB	$20,$21
+;;
 *SWEEP PATTERN
 SWPAT	EQU	*				;;(SWPAT-GFRTAB used by DPV1)
-*BIGBEN SOUNDS
-FA5C  : 08 40 08 40 08 40 08 40        ;;A9 = UNUSED FIRE? / ;;AF = SINI-BOMB (BBSND) (4DBA)
-
-PCRYSP	FCB	$08,$40
+*BIGBEN SOUNDS					;;(Length = $0A)($38 = BBSND-GFRTAB)
+BBSND	FCB	$08,$40,$08,$40,$08,$40,$08,$40 
+;;
+;; PLAYER CRYSTAL PICKUP			;;(Length = $14)($40 = PCRYSP-GFRTAB)
+PCRYSP	FCB	$08,$40	
 ;(42h)
 FA66  : 01 02 03 04                    ;;AD = ENEMY FIRE (4DBA) / AE = PLAYER FIRE (4DAE)
 ;(46h)
