@@ -1295,7 +1295,7 @@ VVECT	EQU	*
 *
 ;;---------------------------------------------------------------------
 ;;
-;;  GWAVE WAVEFORM TABLE (GWVTAB)
+;;   GWAVE WAVEFORM TABLE (GWVTAB)
 ;;
 ;;	GWAVE is a a wavetable synthesizer routine written in 1979 by
 ;;	Eugene Jarvis.  This is arguably the most famous synth heard
@@ -1516,7 +1516,7 @@ COOLDN  FCB    	$10,8,1
 ;;
 ;; CRYSTAL FLASHING				;;(Length = $0E)($68 = CRYSFP-GFRTAB)
 CRYSFP	FCB	$08,$80,$10,$78,$18,$70,$20,$60
-		$28,$58,$30,$50,$40,$48
+	FCB	$28,$58,$30,$50,$40,$48
 *
 *PARAMETER TRANSFER
 *
@@ -1533,7 +1533,232 @@ TRANS1	LDAA	0,X
 	BNE	TRANS1
 	PULA
 	RTS
+;;---------------------------------------------------------------------
+;;
+;;   Unknown Lightning+Appear Routine Code (Unused - No call)
+;;
+UNKLITE	ASLA 
+	ASLA
+	ASLA
+	ASLA
+	SUBA	#$03
+	STAA	DFREQ
+*
+*LIGHTNING
+*
+LITE	LDAB	#3				;;(this instruction has been flip-flopped)
+	STAA	LFREQ				;;(originally used DFREQ)
+	LDAA	#1				;;(this instruction has been flip-flopped)
 	END
+FABC : 97 1F    sta  $1F
+FABE : 86 FF    lda  #$FF
+FAC0 : 90 15    suba $15
+FAC2 : B7 04 00 sta  $0400
+FAC5 : D7 10    stb  $10
+FAC7 : D6 10    ldb  $10
+FAC9 : 96 02    lda  $02
+FACB : 44       lsra 
+FACC : 44       lsra 
+FACD : 44       lsra 
+FACE : 98 02    eora $02
+FAD0 : 44       lsra 
+FAD1 : 76 00 01 ror  $0001
+FAD4 : 76 00 02 ror  $0002
+FAD7 : 24 07    bcc  $FAE0
+FAD9 : B6 04 00 lda  $0400
+FADC : 43       coma 
+FADD : B7 04 00 sta  $0400
+FAE0 : 96 14    lda  $14
+FAE2 : 4A       deca 
+FAE3 : 26 FD    bne  $FAE2
+FAE5 : 5A       decb 
+FAE6 : 26 E1    bne  $FAC9
+FAE8 : 96 14    lda  $14
+FAEA : 9B 15    adda $15
+FAEC : 97 14    sta  $14
+FAEE : 26 D7    bne  $FAC7
+FAF0 : 39       rts  
+FAF1 : 4F       clra 
+FAF2 : B7 04 00 sta  $0400
+FAF5 : 97 0C    sta  $0C
+FAF7 : 4F       clra 
+FAF8 : 91 0C    cmpa $0C
+FAFA : 26 03    bne  $FAFF
+FAFC : 73 04 00 com  $0400
+FAFF : C6 12    ldb  #$12
+FB01 : 5A       decb 
+FB02 : 26 FD    bne  $FB01
+FB04 : 4C       inca 
+FB05 : 2A F1    bpl  $FAF8
+FB07 : 73 04 00 com  $0400
+FB0A : 7C 00 0C inc  $000C
+FB0D : 2A E8    bpl  $FAF7
+FB0F : 39       rts  
+FB10 : 86 01    lda  #$01
+FB12 : 97 14    sta  $14
+FB14 : CE 03 E8 ldx  #$03E8
+FB17 : 86 01    lda  #$01
+FB19 : C6 FF    ldb  #$FF
+FB1B : 20 1A    bra  $FB37
+FB1D : 86 00    lda  #$00
+FB1F : 97 14    sta  $14
+FB21 : CE 00 80 ldx  #$0080
+FB24 : 86 01    lda  #$01
+FB26 : C6 C0    ldb  #$C0
+FB28 : 20 0D    bra  $FB37
+FB2A : 86 01    lda  #$01
+FB2C : 97 14    sta  $14
+FB2E : CE 0F A0 ldx  #$0FA0
+FB31 : 86 01    lda  #$01
+FB33 : C6 FF    ldb  #$FF
+FB35 : 20 00    bra  $FB37
+FB37 : 97 13    sta  $13
+FB39 : D7 0E    stb  $0E
+FB3B : DF 11    stx  $11
+FB3D : 7F 00 10 clr  $0010
+FB40 : DE 11    ldx  $11
+FB42 : B6 04 00 lda  $0400
+FB45 : 16       tab  
+FB46 : 54       lsrb 
+FB47 : 54       lsrb 
+FB48 : 54       lsrb 
+FB49 : D8 02    eorb $02
+FB4B : 54       lsrb 
+FB4C : 76 00 01 ror  $0001			;;get HI random number
+FB4F : 76 00 02 ror  $0002
+FB52 : D6 0E    ldb  $0E
+FB54 : 7D 00 14 tst  $0014
+FB57 : 27 02    beq  $FB5B
+FB59 : D4 01    andb $01
+FB5B : D7 0F    stb  $0F
+FB5D : D6 10    ldb  $10
+FB5F : 91 02    cmpa $02
+FB61 : 22 12    bhi  $FB75
+FB63 : 09       dex  
+FB64 : 27 26    beq  $FB8C
+FB66 : B7 04 00 sta  $0400
+FB69 : DB 10    addb $10
+FB6B : 99 0F    adca $0F
+FB6D : 25 16    bcs  $FB85
+FB6F : 91 02    cmpa $02
+FB71 : 23 F0    bls  $FB63
+FB73 : 20 10    bra  $FB85
+FB75 : 09       dex  
+FB76 : 27 14    beq  $FB8C
+FB78 : B7 04 00 sta  $0400
+FB7B : D0 10    subb $10
+FB7D : 92 0F    sbca $0F
+FB7F : 25 04    bcs  $FB85
+FB81 : 91 02    cmpa $02
+FB83 : 22 F0    bhi  $FB75
+FB85 : 96 02    lda  $02
+FB87 : B7 04 00 sta  $0400
+FB8A : 20 B9    bra  $FB45
+FB8C : D6 13    ldb  $13
+FB8E : 27 B5    beq  $FB45
+FB90 : 96 0E    lda  $0E
+FB92 : D6 10    ldb  $10
+FB94 : 44       lsra 
+FB95 : 56       rorb 
+FB96 : 44       lsra 
+FB97 : 56       rorb 
+FB98 : 44       lsra 
+FB99 : 56       rorb 
+FB9A : 43       coma 
+FB9B : 50       negb 
+FB9C : 82 FF    sbca #$FF
+FB9E : DB 10    addb $10
+FBA0 : 99 0E    adca $0E
+FBA2 : D7 10    stb  $10
+FBA4 : 97 0E    sta  $0E
+FBA6 : 26 98    bne  $FB40
+FBA8 : C1 07    cmpb #$07
+FBAA : 26 94    bne  $FB40
+FBAC : 39       rts  
+FBAD : C6 FF    ldb  #$FF
+FBAF : D7 18    stb  $18
+FBB1 : CE FB C6 ldx  #$FBC6
+FBB4 : 8D 09    bsr  $FBBF
+FBB6 : CE FB CC ldx  #$FBCC
+FBB9 : 8D 04    bsr  $FBBF
+FBBB : 5A       decb 
+FBBC : 26 F3    bne  $FBB1
+FBBE : 39       rts  
+FBBF : BD FB D2 jsr  $FBD2
+FBC2 : BD FB EB jsr  $FBEB
+FBC5 : 39       rts  
+FBC6 : 20 03    bra  $FBCB
+FBC8 : FF 50 FF stx  $50FF
+FBCB : 00       illegal
+FBCC : 50       negb 
+FBCD : 03       illegal
+FBCE : 01       nop  
+FBCF : 20 FF    bra  $FBD0
+FBD1 : 00       illegal
+FBD2 : A6 00    lda  (x+$00)
+FBD4 : 97 0F    sta  $0F
+FBD6 : A6 01    lda  (x+$01)
+FBD8 : 97 10    sta  $10
+FBDA : A6 02    lda  (x+$02)
+FBDC : 97 11    sta  $11
+FBDE : A6 03    lda  (x+$03)
+FBE0 : 97 12    sta  $12
+FBE2 : A6 04    lda  (x+$04)
+FBE4 : 97 13    sta  $13
+FBE6 : A6 05    lda  (x+$05)
+FBE8 : 97 14    sta  $14
+FBEA : 39       rts  
+FBEB : 96 18    lda  $18
+FBED : 37       pshb 
+FBEE : D6 13    ldb  $13
+FBF0 : D7 15    stb  $15
+FBF2 : D6 10    ldb  $10
+FBF4 : D7 16    stb  $16
+FBF6 : 43       coma 
+FBF7 : D6 0F    ldb  $0F
+FBF9 : B7 04 00 sta  $0400
+FBFC : 5A       decb 
+FBFD : 26 FD    bne  $FBFC
+FBFF : 43       coma 
+FC00 : D6 0F    ldb  $0F
+FC02 : 20 00    bra  $FC04
+FC04 : 08       inx  
+FC05 : 09       dex  
+FC06 : 08       inx  
+FC07 : 09       dex  
+FC08 : B7 04 00 sta  $0400
+FC0B : 5A       decb 
+FC0C : 26 FD    bne  $FC0B
+FC0E : 7A 00 16 dec  $0016
+FC11 : 27 16    beq  $FC29
+FC13 : 7A 00 15 dec  $0015
+FC16 : 26 DE    bne  $FBF6
+FC18 : 43       coma 
+FC19 : D6 13    ldb  $13
+FC1B : B7 04 00 sta  $0400
+FC1E : D7 15    stb  $15
+FC20 : D6 0F    ldb  $0F
+FC22 : 9B 14    adda $14
+FC24 : 2B 1E    bmi  $FC44
+FC26 : 01       nop  
+FC27 : 20 15    bra  $FC3E
+FC29 : 08       inx  
+FC2A : 09       dex  
+FC2B : 01       nop  
+FC2C : 43       coma 
+FC2D : D6 10    ldb  $10
+FC2F : B7 04 00 sta  $0400
+FC32 : D7 16    stb  $16
+FC34 : D6 0F    ldb  $0F
+FC36 : D0 11    subb $11
+FC38 : D1 12    cmpb $12
+FC3A : D1 12    cmpb $12
+FC3C : 27 06    beq  $FC44
+FC3E : D7 0F    stb  $0F
+FC40 : C0 05    subb #$05
+FC42 : 20 B8    bra  $FBFC
+FC44 : 33       pulb 
+FC45 : 39       rts  
 *
 * VECTORS HERE
 *
