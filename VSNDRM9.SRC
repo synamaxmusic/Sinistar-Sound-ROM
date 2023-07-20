@@ -671,7 +671,7 @@ DELAY	DEX
 ;; 	soundcpu.rb@f18a = 0E (AF = SINI-BOMB) (Original value)	(QSFire)
 ;; 	soundcpu.rb@f18a = 0D (AE = PLAYER FIRE)		(QFIRE)
 ;; 	soundcpu.rb@f18a = 0C (AD = WARRIOR FIRE)		(QWFIRE)
-;; 	soundcpu.rb@f18a = 0B (UNUSED BOUNCE SOUND EFFECT)
+;; 	soundcpu.rb@f18a = 0B (UNUSED ALTERNATE BOUNCE)
 ;; 	soundcpu.rb@f18a = 0A (AB = BOUNCE)			(QBOUNCE)
 ;; 	soundcpu.rb@f18a = 09 (AA = WORKER CRYSTAL PICKUP)	(QWorkCr)
 ;; 	soundcpu.rb@f18a = 08 (A9 = UNUSED "LANDER" FIRE) 	(FOUND IN DEFENDER VSNDRM1 AS DP1V)
@@ -1447,7 +1447,7 @@ ERRORV	FCB	$74,$00,$09,$00,$00,$1A,$1E	;;SINISTAR SPEECH ERROR
 BBSV	FCB	$74,$12,$09,$00,$00,$0A,$38	;;AF = SINI-BOMB ("Big Ben" Bell Sound)			(QSFire)
 PFIREV	FCB	$11,$06,$06,$02,$20,$03,$42	;;AE = PLAYER FIRE					(QFIRE)
 EFIREV	FCB	$11,$04,$0B,$01,$20,$04,$42	;;AD = WARRIOR FIRE					(QWFIRE)
-UNUSED1	FCB	$12,$03,$09,$00,$00,$04,$46	;;UNUSED BOUNCE SOUND EFFECT (only difference is offset)
+UNUSED1	FCB	$12,$03,$09,$00,$00,$04,$46	;;UNUSED ALTERNATE BOUNCE (only difference is offset)
 BOUNCV	FCB	$12,$03,$09,$00,$00,$04,$4A	;;AB = BOUNCE						(QBOUNCE)
 ECRYSV	FCB	$16,$00,$09,$00,$00,$16,$4E	;;AA = WORKER CRYSTAL PICKUP				(QWorkCr)
 DP1V	FCB	$11,$05,$11,$01,$0F,$01,$38	;;A9 = UNUSED "LANDER" FIRE (FOUND IN DEFENDER VSNDRM1)
@@ -1457,6 +1457,14 @@ CLANGV	FCB	$68,$20,$00,$02,$26,$03,$04	;;A6 = SINISTAR PIECE ADDED / GAME OVER C
 BLASTV	FCB	$08,$47,$0B,$40,$01,$02,$03	;;A5 = UNUSED BLASTER "ENERGY CRITICAL" ALARM
 STARTV	FCB	$88,$F3,$90,$13,$B7,$04,$00	;;A4 = PLAYER START CUE					(QPlStr)
 PCRYSV	FCB	$18,$11,$09,$00,$00,$14,$40	;;A3 = PLAYER CRYSTAL PICKUP				(QPlayCr)
+;;---------------------------------------------------------------------
+;;
+;;   GWAVE FREQUENCY PATTERN TABLE (GFRTAB)
+;;
+;;	Frequency patterns are used to control the pitch of the waveform.
+;;	Patterns often go "overbounds" into other pattern areas, like
+;;	ED'S SOUND 17 for example.  This preset uses two defined patterns
+;;	one right after another.  
 *
 *GWAVE FREQ PATTERN TABLE
 *
@@ -1482,7 +1490,7 @@ ERRORP	FCB	$40,$01,$3E,$03,$3C,$05,$3A,$07
 ;;
 *SWEEP PATTERN
 SWPAT	EQU	*				;;(SWPAT-GFRTAB used by DPV1)
-*BIGBEN SOUNDS					;;(Length = $0A)($38 = BBSND-GFRTAB)
+*BIGBEN SOUNDS					;;(Length = $0A)($38 = BBSND-GFRTAB)	(Truncated BBSND pattern)
 BBSND	FCB	$08,$40,$08,$40,$08,$40,$08,$40 
 ;;
 ;; PLAYER CRYSTAL PICKUP			;;(Length = $14)($40 = PCRYSP-GFRTAB)
@@ -1490,21 +1498,26 @@ PCRYSP	FCB	$08,$40
 ;;
 ;; PLAYER/WARRIOR FIRE PATTERN			;;(Length = $03)($42 = FIRESND-GFRTAB)	(PLAYER)
 FIRESND	FCB	$01,$02,$03,$04                	;;(Length = $04)($42 = FIRESND-GFRTAB)	(WARRIOR)
-;(46h)
-FA6A  : 20 18 20 01                    ;
-;(4Ah)
-FA6E  : 01 30 28 30                    ;;AB = BUMP
-;(4Eh)
-FA72  : 1E 02 1B 04 23 07 1D 01        ;;AA = ENEMY CRYSTAL PICKUP (4DC9)
-FA7A  : 22 03 19 09 1F 06 1A 05        ;
-FA82  : 1C 0B 21 08 20 0A              ;
-;;Spinner Sound "Drip"(64h)
-FA88  : 40                             ;SPNR ;;Crystal Full Sequence
-;Cool Downer
-FA89  : 10 08 01                       ;COOLDN 
-;(68h)
-FA8C  : 08 80 10 78 18 70 20 60        ;;A7 = CRYSTAL FLASHING (4DF7)
-FA94  : 28 58 30 50 40 48              ;
+;;
+;; UNUSED ALTERNATE BOUNCE			;;(Length = $04)($46 = UBOUNCP-GFRTAB)
+UBOUNCP	FCB	$20,$18,$20,$01
+;;
+;; BOUNCE PATTERN				;;(Length = $04)($4A = BOUNCEP-GFRTAB)
+BOUNCEP	FCB	$01,$30,$28,$30                 
+;;
+;; WORKER CRYSTAL PICKUP			;;(Length = $16)($4E = ECRYSP-GFRTAB)
+ECRYSP	FCB	$1E,$02,$1B,$04,$23,$07,$1D,$01
+	FCB	$22,$03,$19,$09,$1F,$06,$1A,$05
+	FCB	$1C,$0B,$21,$08,$20,$0A
+;;
+*SPINNER SOUND "DRIP"				;;(Length = $04)($64 = SPNR-GFRTAB)	(ED'S SOUND 17)
+SPNR    FCB    	$40
+*COOL DOWNER
+COOLDN  FCB    	$10,8,1
+;;
+;; CRYSTAL FLASHING				;;(Length = $0E)($68 = CRYSFP-GFRTAB)
+CRYSFP	FCB	$08,$80,$10,$78,$18,$70,$20,$60
+		$28,$58,$30,$50,$40,$48
 	END
 *
 * VECTORS HERE
