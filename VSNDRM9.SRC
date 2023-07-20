@@ -1556,6 +1556,7 @@ FABE : 86 FF    lda  #$FF
 FAC0 : 90 15    suba $15
 FAC2 : B7 04 00 sta  $0400
 FAC5 : D7 10    stb  $10
+;;
 FAC7 : D6 10    ldb  $10
 FAC9 : 96 02    lda  $02
 FACB : 44       lsra 
@@ -1569,7 +1570,9 @@ FAD7 : 24 07    bcc  $FAE0
 FAD9 : B6 04 00 lda  $0400
 FADC : 43       coma 
 FADD : B7 04 00 sta  $0400
+;;
 FAE0 : 96 14    lda  $14
+;;
 FAE2 : 4A       deca 
 FAE3 : 26 FD    bne  $FAE2
 FAE5 : 5A       decb 
@@ -1582,11 +1585,15 @@ FAF0 : 39       rts
 FAF1 : 4F       clra 
 FAF2 : B7 04 00 sta  $0400
 FAF5 : 97 0C    sta  $0C
+;;
 FAF7 : 4F       clra 
+;;
 FAF8 : 91 0C    cmpa $0C
 FAFA : 26 03    bne  $FAFF
 FAFC : 73 04 00 com  $0400
+;;
 FAFF : C6 12    ldb  #$12
+;;
 FB01 : 5A       decb 
 FB02 : 26 FD    bne  $FB01
 FB04 : 4C       inca 
@@ -1613,6 +1620,7 @@ FB2E : CE 0F A0 ldx  #$0FA0
 FB31 : 86 01    lda  #$01
 FB33 : C6 FF    ldb  #$FF
 FB35 : 20 00    bra  $FB37
+;;
 FB37 : 97 13    sta  $13
 FB39 : D7 0E    stb  $0E
 FB3B : DF 11    stx  $11
@@ -1631,6 +1639,7 @@ FB52 : D6 0E    ldb  $0E
 FB54 : 7D 00 14 tst  $0014
 FB57 : 27 02    beq  $FB5B
 FB59 : D4 01    andb $01
+;;
 FB5B : D7 0F    stb  $0F
 FB5D : D6 10    ldb  $10
 FB5F : 91 02    cmpa $02
