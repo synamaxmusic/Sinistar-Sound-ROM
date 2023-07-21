@@ -1759,11 +1759,17 @@ FNOIS6  LDAB   	FDFLG
         CMPB   	#7
         BNE    	FNOIS0
         RTS  
+PERKSS	LDAA	#$FF
+	;;(had to move AMP0 from $05 to $18)
+	STAA	AMP0
+	;;
+	;;;;;;LDX	#VEC06X
+	;;;;;;BRA	PERKS1
 FBAD : C6 FF    ldb  #$FF
 FBAF : D7 18    stb  $18
-FBB1 : CE FB C6 ldx  #$FBC6
+FBB1 : CE FB C6 ldx  #VEC03X	
 FBB4 : 8D 09    bsr  $FBBF
-FBB6 : CE FB CC ldx  #$FBCC
+FBB6 : CE FB CC ldx  #VEC04X
 FBB9 : 8D 04    bsr  $FBBF
 FBBB : 5A       decb 
 FBBC : 26 F3    bne  $FBB1
@@ -1771,14 +1777,8 @@ FBBE : 39       rts
 FBBF : BD FB D2 jsr  $FBD2
 FBC2 : BD FB EB jsr  $FBEB
 FBC5 : 39       rts  
-FBC6 : 20 03    bra  $FBCB
-FBC8 : FF 50 FF stx  $50FF
-FBCB : 00       illegal
-FBCC : 50       negb 
-FBCD : 03       illegal
-FBCE : 01       nop  
-FBCF : 20 FF    bra  $FBD0
-FBD1 : 00       illegal
+VEC03X	FDB	$2003,$FF50,$FF00
+VEC04X	FDB	$5003,$0120,$FF00
 *
 *	MOVE PARAMETERS
 *
@@ -1798,9 +1798,9 @@ MOVE	LDAA	0,X
 *
 *	DELTA F, DELTA A ROUTINE
 *
-;;(had to move AMP0 from $05 to $18)
+	;;(had to move AMP0 from $05 to $18)
 SING	LDAA	AMP0			;GET STARTING AMPLITUDE	
-;;
+	;;
 SING$	PSHB
 FBEE : D6 13    ldb  $13
 FBF0 : D7 15    stb  $15
