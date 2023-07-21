@@ -1643,7 +1643,7 @@ HYPER4	DECB
 	INC	TEMPA			;NEXT PHASE
 	BPL	HYPER1			;DONE?
 	RTS
-	END
+
 ;;---------------------------------------------------------------------
 ;;
 ;;   CANNON Noise Routines
@@ -1759,24 +1759,24 @@ FNOIS6  LDAB   	FDFLG
         CMPB   	#7
         BNE    	FNOIS0
         RTS  
+*
+*
+* SINGLE OSCILLATOR SOUND CALLS
+*
 PERKSS	LDAA	#$FF
 	;;(had to move AMP0 from $05 to $18)
 	STAA	AMP0
 	;;
-	;;;;;;LDX	#VEC06X
-	;;;;;;BRA	PERKS1
-FBAD : C6 FF    ldb  #$FF
-FBAF : D7 18    stb  $18
-FBB1 : CE FB C6 ldx  #VEC03X	
-FBB4 : 8D 09    bsr  $FBBF
-FBB6 : CE FB CC ldx  #VEC04X
-FBB9 : 8D 04    bsr  $FBBF
-FBBB : 5A       decb 
-FBBC : 26 F3    bne  $FBB1
-FBBE : 39       rts  
-FBBF : BD FB D2 jsr  $FBD2
-FBC2 : BD FB EB jsr  $FBEB
-FBC5 : 39       rts  
+ATARI	LDX	#VEC03X			;;(Original in VSNDRM4 was LDX #VEC06X)
+	BSR	PERK1			;;(Original in VSNDRM4 was BRA PERK1)
+	LDX	#VEC04X			;;(Original in VSNDRM4 was LDX #VEC02X)
+	BSR	PERK1			;;(Original in VSNDRM4 was BRA PERK1)
+SQRT2	DECB
+	BNE	ATARI
+	RTS
+PERK1	JSR	MOVE
+	JSR	SING
+	RTS
 VEC03X	FDB	$2003,$FF50,$FF00
 VEC04X	FDB	$5003,$0120,$FF00
 *
@@ -1802,6 +1802,7 @@ MOVE	LDAA	0,X
 SING	LDAA	AMP0			;GET STARTING AMPLITUDE	
 	;;
 SING$	PSHB
+	END
 FBEE : D6 13    ldb  $13
 FBF0 : D7 15    stb  $15
 FBF2 : D6 10    ldb  $10
