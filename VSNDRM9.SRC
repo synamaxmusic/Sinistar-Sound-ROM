@@ -535,7 +535,7 @@ ERROAR	IFNDEF	STEREO
 	SUBA 	#$02			;;(suba to get WALSHT offset)
 	JMP	WALSH			;;(go to Walsh synth)
 	ELSE
-	RTS
+	RTS				;;(nevermind, skip it)
 	ENDIF
 ;;---------------------------------------------------------------------
 ;;
@@ -570,7 +570,7 @@ HANGRY	LDAA	#$08
 ;;
 IMPACT	CMPA	#$07		
 	BGT	XPLODE			
-	JMP	$FB1D
+	JMP	GUNSHOT
 ;;---------------------------------------------------------------------
 ;;
 ;;  8) PLAYER EXPLOSION (QPLDIE)
@@ -641,8 +641,12 @@ HUNGER	CMPA	#$0F
 ;;
 ;;  19) "BEWARE COWARD"
 ;;
-COWARE	CMPA	#$13			
+COWARE	CMPA	#$13		
+	IFNDEF	STEREO	
 	BNE 	GWAVSFX	
+	ELSE
+	BNE	GDELAY
+	ENDIF
  	LDAB    TALK
         CMPB    #$7E
 	BNE	ERROR		
@@ -671,7 +675,7 @@ COWARE	CMPA	#$13
 ;; 	These instructions also creates the side effect of muting the
 ;;	bounce sound effect entirely since it plays so briefly.
 ;;
-	IFDEF	STEREO
+GDELAY	IFDEF	STEREO
 	LDX	#$10FF
 DELAY	DEX
 	BNE	DELAY
@@ -1657,7 +1661,7 @@ HYPER4	DECB
 ;;
 ;;	The next one is called by the "IMPACT" sound trigger and
 ;;	plays whenever the player is hit before exploding.  I labled it
-;;	as "GUNBANG" because it has a much shorter duration and the
+;;	as "GUNSHOT" because it has a much shorter duration and the
 ;;	distortion flag is turned off, creating a white noise burst,
 ;;	that sounds not unlike a gun.
 ;;
@@ -1676,7 +1680,7 @@ CANNON  LDAA   	#1			;;(turn on distortion flag)
         BRA    	FNOISE
 ;;
 ;;
-GUNBANG LDAA   	#0			;;(turn oFF distortion flag)
+GUNSHOT LDAA   	#0			;;(turn oFF distortion flag)
         STAA   	DSFLG			;;
         LDX   	#128			;;(duration = 128)
         LDAA   	#1			;;(FDFLG)
@@ -1852,6 +1856,17 @@ SING6	PULB				;RESTORE B
 	RTS
 *
 *
+;;
+;;	In VSNDRM10, there are two duplicate instructions
+;;	at the very end of the main program.
+;;	This must be a mistake, but to match up with the
+;;	original rom, these instructions are included.
+;;
+	IFDEF	STEREO
+OOPS	PULB				
+	RTS
+	ENDIF
+;;
 	ORG	TALKJMP
 TALKADX	JMP	ADDX
 *
