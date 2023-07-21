@@ -1762,9 +1762,9 @@ FNOIS6  LDAB   	FDFLG
 *
 * SINGLE OSCILLATOR SOUND CALLS
 *
-PERKSS	LDAB	#$FF
+PERKSS	LDAB	#$FF			;;(originally LDAA)
 	;;(had to move AMP0 from $05 to $18)
-	STAB	AMP0
+	STAB	AMP0			;;(originally STAA)
 	;;
 ATARI	LDX	#VEC03X			;;(Original in VSNDRM4 was LDX #VEC06X)
 	BSR	PERK1			;;(Original in VSNDRM4 was BRA PERK1)
