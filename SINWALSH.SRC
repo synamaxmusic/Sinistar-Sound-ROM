@@ -1208,8 +1208,8 @@ ODDTBL
 ;;
 ;;	(Sinistar Error Roar Wave Commands)
 ;;
-EROARW	FDB	$5380		;;LDH	0,80
-	FDB	$0888		;;LDH 	H,N?
+EROARW	FDB	$5380		;;LDH	0,128
+	FDB	$0888		;;LDH 	8,136
 	FDB	$0A10		;;LDH 	6,16
 	FDB	$0908		;;LDH 	7,8
 	FDB	$0B10		;;LDH 	5,16
@@ -1257,10 +1257,10 @@ EXTRAP	FCB	$64		;;(loads into SMPPER, inital pitch)
 	FDB	$6F03		;;DO 	16,EXSPLP$
 	FDB	$6F01		;;DO 	16,EXSPLP$
 	FCB	$80		;;STOP
-EXSPLP$	FDB	$2100		;;LDV 	N,N
-	FCB	$FC		;;	||
-	FDB	$2F00		;;LDV 	N,N
-	FCB	$FC		;;	||
+EXSPLP$	FDB	$2100		;;LDV 	256
+	FCB	$FC		;;WAIT 	4
+	FDB	$2F00		;;LDV 	-256
+	FCB	$FC		;;WAIT 	4
 	FCB	$80 		;;STOP
 ;;
 ;;	(Unused Wave Commands)
