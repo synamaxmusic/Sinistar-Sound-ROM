@@ -1188,9 +1188,11 @@ LDTR	LDAB	#ADD2HA			;ASSUME FIRST ENTRY IS H #8
 ;; FDB %0011110000111100	;2
 ;; FDB %0000111111110000	;1
 ;;JOUST ODDTBL @ $FE88
-;;00 00 55 55 AA 55 5A 5A 96 69 66 66 CC 33 3C 3C 0F F0
+;;0000 5555 AA55 5A5A 9669 6666 CC33 3C3C 0FF0
+;;   0    8    7    6    5    4    3    2    1	(Harmonic Function Number)
 ;;SINISTAR ODDTBL @ $F5D1
-;;00 00 00 00 AA AA 0F F0 C3 F0 18 CF C7 A1 FF 00 00 FF
+;;0000 0000 AAAA 0FF0 C3F0 18CF C7A1 FF00 00FF
+;;   0    8    7    6    5    4    3    2    1	(Harmonic Function Number)
 ODDTBL
  FDB %0000000000000000		;0  CONSTANT IS WEIRDO FOR NOW
  FDB %0000000000000000		;8
@@ -1201,7 +1203,43 @@ ODDTBL
  FDB %1100011110100001		;3
  FDB %1111111100000000		;2
  FDB %0000000011111111		;1
- 
+
+;;
+;;	As it turns out, the last four harmonic functions in Sinistar's
+;;	odd table are actually unused and don't make any purposeful
+;;	sound other than alising noises when the pitch programs play.
+;;
+;;	$AAAA (7) and $0FF0 (6) are the only audible harmonics heard in
+;;	the Extra Ship noise, which is weird because these values are oddly
+;;	specific.  I wonder if Mike modifed the corrupted RAM data by
+;;	copying Joust's 1st fundamental frequency and pasting it here to make
+;;	it sound better.  You can also see how similar the 7th harmonic function
+;;	is compared to the one in Joust ($AA55).  In fact, $5555 and
+;;	$AAAA have the same bit pattern but inverted so the output
+;;	sounds completely the same to the human ear.  The bit pattern
+;;	for $AAAA makes it the highest pitched harmonic possible, with
+;;	with $0FF0 being the lowest square wave possible.  This means with
+;;	the Extra Ship sound, you're hearing the lowest and highest
+;;	harmonics the Walsh function synth can produce.
+;;
+;;	For the Error Roar noise, harmonic functions 7, 6 and 5 ($C3F0)
+;;	are used.  $C3F0 adds a buzzing noise that gives the Sinistar
+;;	error roar extra bite (pun intended).  Again, the remaining
+;;	entries in the odd table barely make any noise when this plays.
+;;	
+;;	The unused wave and pitch program maybe a debug preset as it
+;;	appears to only play a simple pitch command with just the 7th
+;;	harmonic.  You can change the value at $F5D5 to hear all the
+;;	harmonic functions individually.
+;;
+;;	Note that the Sinistar odd table has two entries at the end:
+;;	$FF00 and $00FF.  These two, along with $0FF0 all produce the
+;;	same frequency since the bit pattern is essentially the same.
+;;	This also applies to the values $3333, $6666, and $9999.
+;;
+;;
+;;
+;;
 
 * WAVE PROGRAMS
 
