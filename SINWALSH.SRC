@@ -31,8 +31,9 @@
 ;	with the ODDTBL, corrupting the original values found in Joust.
 ;
 ;	It should be possible to take this code and rebuild it for Joust,
-;	you would just need to replace WORG, ODDTBL, WALSHT, and the
-;	Wave Programs with the Pterodactyl Scream and Ostrich Skid presets.
+;	or any other game that uses this synth routine.  You would just need
+;	to replace WORG, ODDTBL, WALSHT, and the Wave/Pitch Programs with the
+;	rom-specific data.
 ;
 ;	John Kotlarik was the person who found out about the Walsh synthesis
 ;	technique after reading an article from Computer Music Journal.
@@ -40,6 +41,15 @@
 ;	you're looking at now.  Here's an interview with John on how he
 ;	designed some of Joust's sound effects:
 ;	https://joustmaster.com/john-kotlarik/
+;
+;	Walsh Function Sound Machine code has been found in the
+;	following video game roms:
+;
+;	Joust (VSNDRM4)
+;	Sinistar (VSNDRM9 with corrupted ODDTBL)
+;	Splat! (VSNDRM13 with updated ODDTBL)
+;	Blaster (proto5_blaster_3021_rom_18 with Joust ODDTBL)
+;	Mystic Marathon (mm01_1.a08 with updated ODDTBL from Splat)
 ;
 ;;---------------------------------------------------------------------
 ;
@@ -1177,7 +1187,16 @@ LDTR	LDAB	#ADD2HA			;ASSUME FIRST ENTRY IS H #8
 
 * THE HARMONICS ARE TREATED IN ORDER OF DECREASING AVERAGE FREQUENCY.
 
-;;JOUST'S ODDTBL
+;;
+;;	The ODDTBL defines the waveform for each the 8 harmonics.
+;;	Joust's ODDTBL would be reused in Blaster, while Sinistar
+;;	uses a corrupted version that has a misplaced fundamental
+;;	frequency.
+;;
+;;	The ODDTBL was then further modified in Splat; this
+;;	version would be reused again in Mystic Marathon.
+;;
+;;JOUST'S ODDTBL (also used in Blaster)
 ;; FDB %0000000000000000	;0  CONSTANT IS WEIRDO FOR NOW
 ;; FDB %0101010101010101	;8
 ;; FDB %1010101001010101	;7
@@ -1187,12 +1206,14 @@ LDTR	LDAB	#ADD2HA			;ASSUME FIRST ENTRY IS H #8
 ;; FDB %1100110000110011	;3
 ;; FDB %0011110000111100	;2
 ;; FDB %0000111111110000	;1
+;;
 ;;JOUST ODDTBL @ $FE88
 ;;0000 5555 AA55 5A5A 9669 6666 CC33 3C3C 0FF0
 ;;   0    8    7    6    5    4    3    2    1	(Harmonic Function Number)
 ;;SINISTAR ODDTBL @ $F5D1
 ;;0000 0000 AAAA 0FF0 C3F0 18CF C7A1 FF00 00FF
 ;;   0    8    7    6    5    4    3    2    1	(Harmonic Function Number)
+
 ODDTBL
  FDB %0000000000000000		;0  CONSTANT IS WEIRDO FOR NOW
  FDB %0000000000000000		;8
@@ -1204,6 +1225,8 @@ ODDTBL
  FDB %1111111100000000		;2
  FDB %0000000011111111		;1
 
+;;---------------------------------------------------------------------
+;;
 ;;
 ;;	As it turns out, the last four harmonic functions in Sinistar's
 ;;	odd table are actually unused and don't make any purposeful
@@ -1238,6 +1261,24 @@ ODDTBL
 ;;	This also applies to the values $3333, $6666, and $9999.
 ;;
 ;;
+;;---------------------------------------------------------------------
+;;SPLAT ODDTBL	   (located at $F743)
+;;MYSTIC MARATHON  (located at $FE6E)
+;;0000 5555 3333 25DA DA25 C731 0000 FFFF 01FE
+;;   0    8    7    6    5    4    3    2    1	(Harmonic Function Number)
+;;
+;;SPLAT/MYSTIC MARATHON'S ODDTBL
+;; FDB %0000000000000000	;0  CONSTANT IS WEIRDO FOR NOW
+;; FDB %0101010101010101	;8
+;; FDB %0011001100110011	;7
+;; FDB %0010010111011010	;6
+;; FDB %1101101000100101	;5
+;; FDB %1100011100110001	;4
+;; FDB %0000000000000000	;3
+;; FDB %1111111111111111	;2
+;; FDB %0000000111111110	;1
+;;
+;;---------------------------------------------------------------------
 ;;
 ;;
 
