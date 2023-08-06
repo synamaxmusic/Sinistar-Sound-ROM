@@ -857,7 +857,7 @@ ORGTAB  FCB  	3*4
         FDB	AF7,$05FC
 ;;
 ;;	(Listed as E in 7th octave (E7), but it sounds like a D#7 note)
-;;	$03 = octave, $47 = E, $11 = delay?, $F0 = duration?
+;;	$03 = octave, $12 = E, $11 = delay?, $F0 = duration?
 ;;
         FDB	E7,$11F0
 ;;
@@ -884,6 +884,13 @@ ORGTAB  FCB  	3*4
 ;;	FDB	RS,TR/FIF/4
 ;;	FDB	EF1,TEF/FIF/2*7
 ;;	FCB	TUNEND-NINTH
+;;
+;;	To play this in Defender Sound Studio import the following code:
+;;{
+;;  "sound": "Music",
+;;  "params": ["03,71,1532,\n03,18,4592,\n03,41,1822"]
+;;}
+;;
 ;;---------------------------------------------------------------------
 ;;
 ;;	***WALSH FUNCTION SOUND MACHINE*** 
