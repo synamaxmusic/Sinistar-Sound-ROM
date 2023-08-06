@@ -41,10 +41,11 @@
 ;	Thanks to historicalsource for preserving the source code
 ;	to the first four Video Sound ROMs found in the following
 ;	classic Williams arcade games: Defender, Stargate, Robotron,
-;	and Joust.  Joust and Sinistar are the only games that are known
-;	to use the Walsh Function routine, which is one of the most
-;	complex synths found in any of the ROMs.  Without this,
-;	my reassembly of Sinistar's sound code would've been impossible.
+;	and Joust.  Sinistar reuses code from all of them. For example,
+;	Joust and Sinistar share the Walsh Function routine (which is
+;	the most complex synth found in any of these ROMs).
+;       If none of these source files existed, my reassembly of
+;	Sinistar's sound code would've been impossible.
 ;
 ;	Huge thanks also goes out to Will-I-ROMS aka kaputnikGo,
 ;	you can view their extensive Williams disassembly files here:
