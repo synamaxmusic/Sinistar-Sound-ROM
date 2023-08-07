@@ -710,7 +710,7 @@ DELAY	DEX
 ;; 	soundcpu.rb@f18a = 08 (A9 = UNUSED "LANDER" FIRE) 	(FOUND IN DEFENDER VSNDRM1 AS DP1V)
 ;; 	soundcpu.rb@f18a = 07 (A8 = CRYSTAL BOMB-BAY FULL)	(QFulCr)
 ;; 	soundcpu.rb@f18a = 06 (A7 = CRYSTAL FLASHING) 		(QCRYFLA)
-;; 	soundcpu.rb@f18a = 05 (A6 = PIECE ADDED / GAME OVER)	(QWorkSi/QGamEnd)
+;; 	soundcpu.rb@f18a = 05 (A6 = PIECE ADDED / GAME OVER)	(QWorkSi/QGamEnd) (Also used in Splat!)
 ;; 	soundcpu.rb@f18a = 04 (A5 = UNUSED BLASTER "ENERGY CRITICAL" ALARM)
 ;; 	soundcpu.rb@f18a = 03 (A4 = PLAYER START CUE) 		(QPlStr)
 ;; 	soundcpu.rb@f18a = 02 (A3 = PLAYER CRYSTAL PICKUP)	(QPlayCr)
