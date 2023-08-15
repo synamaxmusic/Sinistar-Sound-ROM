@@ -981,6 +981,8 @@ NOISE1 	LDAA	LO 			;GET RANDOM BIT
 	RTS  
 ;;---------------------------------------------------------------------
 ;;
+;;	DIAGNOI	EQU	$F6F9
+;;
 ;;	(Will-I-ROMS labeled this as SYNTH28.  It gets called by
 ;;	Diagnostic Processing for checksum verification. This routine
 ;;	makes a weird bubbly pitch bend noise)
@@ -1023,6 +1025,8 @@ DIAGBL2	DECB
 	BNE	DIAGMLP
 	RTS
 ;;---------------------------------------------------------------------
+;;
+;;	WEIRD	EQU	$F735
 ;;
 ;;	(Will-I-ROMS labeled this as SYNTH29.  It doesn't look like this is
 ;;	called anywhere.  This routine makes an even more weird glitchy
@@ -1577,11 +1581,21 @@ TRANS1	LDAA	0,X
 ;;
 ;;   Unknown Lightning+Appear Routines (Unused - No call)
 ;;
-;;	These are really interesting.  LITE has been modifed and
-;;	and instead of doing a downward pitch bend, it goes upward and
-;;	loops forever.  Calling ENDLITE produces a quiet noise, similar
-;;	to the flapping sounds from Joust.  It stops LITE from looping
-;;	so I labled it as ENDLITE.
+;;	ENDLITE	EQU	$FAAE
+;;	LITE	EQU	$FAB6
+;;
+;;	These are really interesting.  Both of these routines use the
+;;	A register value so the sound ID itself acts as a seed for the
+;;	random number generator.  
+;;
+;;      The LITE routine from Joust has been modifed.  Instead of doing
+;;	a downward pitch bend, it goes upward and usually loops forever,
+;;	depending on the A register value.  
+;;
+;;	Calling ENDLITE produces a noise burst without looping.  Sometimes
+;;	(depending on the A value) it sounds similar to the flapping
+;;	sounds from Joust.  It stops LITE from looping so I labled it
+;;	as ENDLITE.
 ;;
 ;;	LITE sorta reminds me of Tempest's warp sound, with ENDLITE
 ;;	acting as a "switching to impulse engines" effect.
@@ -1638,6 +1652,9 @@ LITE3	DECA
 *
 *HYPER
 *
+;;
+;;	HYPER	EQU	$FAF1
+;;
 HYPER	CLRA
 	STAA	SOUND	
 	STAA	TEMPA			;ZERO PHASE
@@ -1774,6 +1791,9 @@ FNOIS6  LDAB   	FDFLG
 *
 * SINGLE OSCILLATOR SOUND CALLS
 *
+;;
+;;	PERKSS	EQU	$FBAD
+;;
 PERKSS	LDAB	#$FF			;;(originally LDAA)
 	;;(had to move AMP0 from $05 to $18)
 	STAB	AMP0			;;(originally STAA)
