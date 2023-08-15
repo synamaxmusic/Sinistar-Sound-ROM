@@ -1588,19 +1588,20 @@ TRANS1	LDAA	0,X
 ;;	A register value so the sound ID itself acts as a seed for the
 ;;	random number generator.  
 ;;
-;;      The LITE routine from Joust has been modifed.  Instead of doing
-;;	a downward pitch bend, it goes upward and usually loops forever,
-;;	depending on the A register value.  
+;;      The LITE routine from Joust has been modified.  Instead of doing
+;;	a downward pitch bend and then stopping, it goes upward and
+;;	usually loops for a long time or sometimes forever, depending on
+;;	the A register value.  
 ;;
 ;;	Calling ENDLITE produces a noise burst without looping.  Sometimes
 ;;	(depending on the A value) it sounds similar to the flapping
-;;	sounds from Joust.  It stops LITE from looping so I labled it
+;;	sounds from Joust.  It stops LITE from looping so I labeled it
 ;;	as ENDLITE.
 ;;
 ;;	LITE sorta reminds me of Tempest's warp sound, with ENDLITE
 ;;	acting as a "switching to impulse engines" effect.
 ;;	It makes me wonder if these routines were originally going to
-;;	be used for the warp after defeating the Sinistar.
+;;	be used for the warp that occurs after defeating the Sinistar.
 ;;
 ENDLITE	ASLA 
 	ASLA
