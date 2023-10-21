@@ -781,7 +781,7 @@ NMI1	ADCB	0,X
 	DEX
 	CPX	#$F000	
 	BNE	NMI1
-	CMPB	0,X			;;(The checksum should be $AE, but
+	CMPB	0,X			;;(The checksum should be $AD, but
 					;;because it's defined as $AA, the
 					;;the checksum fails.)
 	BEQ	NMI2
